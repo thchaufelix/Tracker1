@@ -139,10 +139,10 @@ const NotiContextProvider = (props) => {
   const logFunc = (callback) => console.log(callback)
 
   const onRegister = (fcm_token) => {
-    console.log(fcm_token, imei)
     setFCM_Token(fcm_token)
 
     IBeaconPlaygroundModule.getDeviceImei((imei) => {
+      console.log(fcm_token, imei)
       uploadFCMToken(fcm_token, imei).then((response) => {
         console.log('token ' + response)
         if (response.token) {

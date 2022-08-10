@@ -17,6 +17,8 @@ import * as Localization from 'expo-localization';
 import NotiContextProvider from './src/Context/notContext';
 import {useKeepAwake} from "expo-keep-awake";
 import fonts from './assets/fonts'
+import MapRoute from "./src/screens/MapRoute";
+
 
 const storeData = async (key, value) => {
   try {
@@ -33,6 +35,7 @@ i18n.translations = {zh, en};
 
 export default function App() {
   useKeepAwake()
+
   const [lang, setLang] = useState('en')
   const [isLangLoaded, setIsLangLoaded] = useState(false)
   let [fontsLoaded] = useFonts(fonts);
@@ -80,8 +83,8 @@ export default function App() {
         <NavigationContainer>
           <ApplicationProvider {...eva} theme={{...eva.light, ...theme}}>
 
-            {/*<IconRegistry icons={[EvaIconsPack, MaterialIconsPack, IoniconsPack, FontAwesome5Pack]}/>*/}
-            {/*<AppNavigator initialRouteName={AppRoute.AUTH}/>*/}
+            <IconRegistry icons={[EvaIconsPack, MaterialIconsPack, IoniconsPack, FontAwesome5Pack]}/>
+            <AppNavigator initialRouteName={AppRoute.AUTH}/>
 
           </ApplicationProvider>
         </NavigationContainer>

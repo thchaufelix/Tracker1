@@ -17,9 +17,7 @@ export const AppRoute = {
     WL:'WL',
     CONNECT:'Connect',
     ACCOUNT:'Account',
-    FORGET:'Forget',
     LINKHOME:'LinkHome',
-    LINKCREATE:'LinkCreate'
-    
-
+    LINKCREATE:'LinkCreate',
+    MAPVIEW:'MapRoute'
 }

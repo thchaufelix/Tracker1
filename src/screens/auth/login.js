@@ -352,7 +352,6 @@ const styles = StyleSheet.create({
   userPW:{ 
     width:'80%',
     borderRadius:5,
-    padding:10,
     fontFamily:'M-M' ,
     padding:20,
     color:'rgba(255, 255, 255, 1.0)',

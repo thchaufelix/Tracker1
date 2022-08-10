@@ -878,7 +878,6 @@ const styles = StyleSheet.create({
         shadowRadius:1,
         shadowOffset:{width:0,height:3},
         shadowOpacity:0.5,
-        shadowRadius:3,
         zIndex:5,
         position:'absolute',
         elevation:20

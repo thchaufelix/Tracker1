@@ -1,4 +1,4 @@
-import React, {createContext, useState, useEffect, useMemo, useContext} from 'react'
+import React, {createContext, useState, useEffect, useMemo, useContext, useRef} from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as constants from '../global/constants'
 import axios from 'axios'
@@ -19,6 +19,7 @@ const AccountContextProvider = (props) => {
   const secondList = [...Array(constants.scanInterval).keys()]
   // const [ motionData, setMotionData ] = useState('')
   const [bData, setBData] = useState({})
+  // const bData = useRef({})
   const [onCarList, setOnCarList] = useState([])
   const [versionData, setVersionData] = useState({})
   // const notification = new NotifService((token)=>onRegister(token),(iNotification)=>onNotification(iNotification))
@@ -53,10 +54,9 @@ const AccountContextProvider = (props) => {
 
   const handleDebugMsg = (msg) => {
     const data = JSON.parse(msg)
-    setBData(data)
+    // setBData(data)
     if ((new Date().getMinutes() + new Date().getHours() * 60) % constants.scanPeriod === 0 && secondList.includes(new Date().getSeconds())) {
       IBeaconPlaygroundModule.startScanning();
-
     }
 
   }
