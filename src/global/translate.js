@@ -81,7 +81,13 @@ export const en ={
     NewV:'New Version',
     UPGRADE:'UPGRADE',
     SelectPrj:'Please select project',
-    Accept:'Accept'
+    Accept:'Accept',
+
+
+    routeDistance: "Distance",
+    routeModifier: "Modifier",
+    routeDistanceUnit: "m"
+
 }
 
 
@@ -169,5 +175,10 @@ export const zh ={
     NewV:'新版本',
     UPGRADE:'升級',
     SelectPrj:'請選擇項目',
-    Accept:'准許'
+    Accept:'准許',
+
+
+    routeDistance: "距離",
+    routeModifier: "方向",
+    routeDistanceUnit: "米"
 }
