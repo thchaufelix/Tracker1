@@ -51,7 +51,6 @@ export default function MapRoute({navigation}) {
 
   const [{data, loading, error}, executeGetLatest] = useAxios({
     method: "GET",
-    url: apiUri + plantRouteTaskAPI,
     headers: {
       Authorization: "Token " + token,
       "Fcm-Imei": deviceData.imei
@@ -59,9 +58,9 @@ export default function MapRoute({navigation}) {
     params: {project: deviceData.pj}
   }, {manual: true})
 
-  const refreshMap = () => {
+  const refreshMap = (url) => {
     setMapLoading(true);
-    executeGetLatest().then(response => {
+    executeGetLatest({url: url}).then(response => {
       const routeData = response.data[0].site_plant_route
       setRouteData(routeData.route[0])
 
@@ -100,7 +99,7 @@ export default function MapRoute({navigation}) {
   }
 
   useEffect(() => {
-    refreshMap()
+    refreshMap(apiUri + plantRouteTaskAPI)
     setMapLoading(false)
   }, [])
 
@@ -109,8 +108,12 @@ export default function MapRoute({navigation}) {
     if (action === "start") {
       setLocationTick(0)
     } else {
-      setLocationTick(-10)
+      setLocationTick(-999)
     }
+  }
+
+  const onReachHandler = () => {
+
   }
 
   useEffect(() => {
@@ -118,8 +121,8 @@ export default function MapRoute({navigation}) {
       setCurrentLocation(GPSData[locationTick])
 
       setTimeout(() => {
-        setLocationTick(prevState => prevState + 1)
-      }, 10);
+        setLocationTick(prevState => prevState + 5 > GPSData.length ? GPSData.length-1 : prevState + 5)
+      }, 100);
     }
   }, [locationTick])
 
@@ -145,7 +148,11 @@ export default function MapRoute({navigation}) {
 
         </MapView>
 
-        <InstructionOverlay instructions={routeData.instructions}/>
+        <InstructionOverlay instructions={routeData.instructions}
+                            currentLocation={currentLocation}
+                            GPSData={GPSData}
+                            onReachHandler={onReachHandler}
+        />
         <RouteActionControl callback={onStartHandler}/>
 
       </View>
