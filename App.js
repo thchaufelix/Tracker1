@@ -17,7 +17,6 @@ import * as Localization from 'expo-localization';
 import NotiContextProvider from './src/Context/notContext';
 import {useKeepAwake} from "expo-keep-awake";
 import fonts from './assets/fonts'
-import MapRoute from "./src/screens/MapRoute";
 
 
 const storeData = async (key, value) => {

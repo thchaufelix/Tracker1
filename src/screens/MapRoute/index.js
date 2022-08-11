@@ -27,10 +27,19 @@ const Header = ({navigation}) => {
 
 export default function MapRoute({navigation}) {
 
-  const {token, deviceData} = useContext(AccountContext)
+  const {token, deviceData} = useContext(AccountContext);
+  const [mapLoading, setMapLoading] = useState(true);
+
   const [routeData, setRouteData] = useState([]);
-  const [startWayPoint, setStartWayPoint] = useState({});
-  const [endWayPoint, setEndWayPoint] = useState({});
+
+  const [startWayPoint, setStartWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
+  const [endWayPoint, setEndWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
+  const [latLngDelta, setLatLngDelta] = useState({
+    latitude: 22.377510,
+    longitude: 114.112639,
+    latitudeDelta: 0.6,
+    longitudeDelta: 0.6
+  });
 
   const [{data, loading, error}, executeGetLatest] = useAxios({
     method: "GET",
@@ -44,30 +53,56 @@ export default function MapRoute({navigation}) {
 
   useEffect(() => {
     refreshMap()
+    setMapLoading(false)
   }, [])
 
   const refreshMap = () => {
+    setMapLoading(true);
     executeGetLatest().then(response => {
-      setRouteData(response.data)
+      const routeData = response.data[0].site_plant_route
+      setRouteData(routeData.route[0])
 
-      if (response.data) {
-        const waypoints = response.data[0].site_plant_route.route[0].waypoints
-        setStartWayPoint({
-          latitude: waypoints[0].latLng.lat,
-          longitude: waypoints[0].latLng.lng
-        })
-        setEndWayPoint({
-          latitude: waypoints[waypoints.length - 1].latLng.lat,
-          longitude: waypoints[waypoints.length - 1].latLng.lng
-        })
+      const waypoints = routeData.route[0].waypoints
+      const firstWayPoint = waypoints[0]
+      const lastWayPoint = waypoints[waypoints.length - 1]
+
+      const startWayPt = {latitude: firstWayPoint.latLng.lat, longitude: firstWayPoint.latLng.lng}
+      const endWayPt = {latitude: lastWayPoint.latLng.lat, longitude: lastWayPoint.latLng.lng}
+
+      setStartWayPoint(startWayPt)
+      setEndWayPoint(endWayPt)
+
+      const coordinates = routeData.route[0].coordinates
+      const allLat = coordinates.map(coord => coord.lat)
+      const allLng = coordinates.map(coord => coord.lng)
+
+      const maxLat = Math.max(...allLat)
+      const minLat = Math.min(...allLat)
+      const maxLng = Math.max(...allLng)
+      const minLng = Math.min(...allLng)
+
+      const latLng = {
+        latitude: (maxLat + minLat) / 2,
+        longitude: (maxLng + minLng) / 2,
+        latitudeDelta: (maxLat - minLat) * 1.35,
+        longitudeDelta: (maxLng - minLng) * 1.35,
       }
+
+      setLatLngDelta(prev => {
+        return {...prev, ...latLng}
+      })
+
 
     })
   }
 
 
   if (loading) return (<View style={styles.container}>
-    <Text>Now Loading</Text>
+    <Text>Getting Data ...</Text>
+  </View>)
+
+  if (mapLoading) return (<View style={styles.container}>
+    <Text>Map Loading ...</Text>
   </View>)
 
   if (routeData.length === 0) return (<View style={styles.container}>
@@ -79,22 +114,17 @@ export default function MapRoute({navigation}) {
       <Header navigation={navigation}/>
       <View style={{alignItems: 'center', justifyContent: "center", height: "92%", width: "98%", marginBottom: 3}}>
         <MapView style={styles.map}
-                 initialRegion={{
-                   latitude: (startWayPoint.latitude + endWayPoint.latitude) /2,
-                   longitude: (startWayPoint.longitude + endWayPoint.longitude) /2,
-                   latitudeDelta: 0.22,
-                   longitudeDelta: 0.22,
-                 }}
+                 initialRegion={latLngDelta}
                  showsPointsOfInterest={false}
         >
 
-          <RouteView data={routeData[0].site_plant_route}
+          <RouteView coordinates={routeData.coordinates}
                      startWayPoint={startWayPoint}
                      endWayPoint={endWayPoint}
           />
 
         </MapView>
-        <InstructionOverlay instructions={routeData[0].site_plant_route.route[0].instructions} />
+        <InstructionOverlay instructions={routeData.instructions}/>
       </View>
 
     </View>
@@ -109,8 +139,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#333",
     alignItems: 'center',
     justifyContent: "center"
-
-
   },
   text: {
     margin: 2,

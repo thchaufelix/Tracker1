@@ -13,6 +13,6 @@ const Stack = createStackNavigator();
 
 export const MapNavigator = ({navigation}) => (
  <Stack.Navigator screenOptions={{headerShown:false}}>
-    <Stack.Screen name={AppRoute.MAPVIEW} component={MapRoute} />
+    <Stack.Screen name={"_"+AppRoute.MAPVIEW} component={MapRoute} />
   </Stack.Navigator>
 );

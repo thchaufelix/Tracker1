@@ -2,20 +2,18 @@ import {Marker, Polyline} from "react-native-maps";
 import React, {useEffect, useState} from "react";
 
 
-const RouteView = ({data, startWayPoint, endWayPoint}) => {
+const RouteView = ({coordinates, startWayPoint, endWayPoint}) => {
   const [route, setRoute] = useState([])
-
-  console.log("rendering")
 
   useEffect(() => {
     setRoute(
-      data.route[0].coordinates.map(coord => {
+      coordinates.map(coord => {
         return {
           latitude: coord.lat,
           longitude: coord.lng
         }
       })
-    )}, [data])
+    )}, [coordinates])
 
   return (
     <>
