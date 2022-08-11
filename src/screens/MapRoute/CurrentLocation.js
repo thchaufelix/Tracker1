@@ -4,19 +4,22 @@ import React, {useEffect, useState} from "react";
 
 const CurrentLocation = ({coordinates}) => {
 
-  // useEffect(() => {
-  //   setRoute(
-  //     coordinates.map(coord => {
-  //       return {
-  //         latitude: coord.lat,
-  //         longitude: coord.lng
-  //       }
-  //     })
-  //   )}, [coordinates])
+  const [position, setPosition] = useState(null)
+
+  useEffect(() => {
+    setPosition(
+      {
+        latitude: coordinates.lat,
+        longitude: coordinates.lng
+      }
+    )
+  }, [coordinates])
+
+  if (position === null) return null;
 
   return (
     <>
-      <Marker key={"currentLocation"} coordinate={coordinates}>
+      <Marker key={"currentLocation"} coordinate={position} pinColor={"#33ff11"}>
       </Marker>
     </>
   )

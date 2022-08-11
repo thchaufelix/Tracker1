@@ -7,10 +7,11 @@ const InstructionOverlay = ({instructions}) => {
   return (
     <View style={styles.container}>
       <View style={styles.cardContainer}>
-        <Text style={{color: "#eee"}}>{instructions[0].text}</Text>
-        <View style={{flexDirection: "row", justifyContent:"space-around", width: "100%"}}>
-          <Text style={{color: "#eee"}}>{i18n.t("routeDistance")}: {instructions[0].distance} {i18n.t("routeDistanceUnit")}</Text>
-          <Text style={{color: "#eee"}}>{i18n.t("routeModifier")}: {instructions[0].modifier}</Text>
+        <Text style={styles.textColor}>{instructions[0].text}</Text>
+        <View style={{flexDirection: "row", justifyContent: "space-around", width: "100%", marginTop: 6}}>
+          <Text
+            style={styles.textColor}>{i18n.t("routeDistance")}: {instructions[0].distance} {i18n.t("routeDistanceUnit")}</Text>
+          <Text style={styles.textColor}>{i18n.t("routeModifier")}: {instructions[0].modifier}</Text>
         </View>
       </View>
     </View>
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
 
     width: "100%",
     position: "absolute",
-    bottom: 30,
+    top: 15,
 
     alignItems: 'center',
     justifyContent: "center",
@@ -36,14 +37,17 @@ const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(74,128,245, 0.8)',
+    borderColor: 'rgba(74,128,245, 1)',
 
-    padding: 4,
-    width: "98%",
-    backgroundColor: 'rgba(74,128,245, 0.6)',
+    padding: 8,
+    width: "92%",
+    backgroundColor: 'rgba(74,128,245, 0.8)',
 
     alignItems: 'center',
     justifyContent: "center",
+  },
+  textColor: {
+    color: "#eee"
   }
 
 });

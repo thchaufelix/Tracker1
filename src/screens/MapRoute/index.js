@@ -9,6 +9,9 @@ import {apiUri, domain, plantRouteTaskAPI} from "../../global/constants";
 import useAxios from "axios-hooks";
 import RouteView from "./RouteView";
 import InstructionOverlay from "./InstructionOverlay";
+import CurrentLocation from "./CurrentLocation";
+import LoadingView from "../../global/LoadingView";
+import RouteActionControl from "./RouteActionControl";
 
 
 const Header = ({navigation}) => {
@@ -27,10 +30,15 @@ const Header = ({navigation}) => {
 
 export default function MapRoute({navigation}) {
 
+  // Temp GPS Data
+  const [GPSData, setGPSData] = useState([]);
+  const [locationTick, setLocationTick] = useState(-1);
+
   const {token, deviceData} = useContext(AccountContext);
   const [mapLoading, setMapLoading] = useState(true);
 
-  const [routeData, setRouteData] = useState([]);
+  const [routeData, setRouteData] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState({lat: 0, lng: 0, index: -1});
 
   const [startWayPoint, setStartWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
   const [endWayPoint, setEndWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
@@ -50,11 +58,6 @@ export default function MapRoute({navigation}) {
     },
     params: {project: deviceData.pj}
   }, {manual: true})
-
-  useEffect(() => {
-    refreshMap()
-    setMapLoading(false)
-  }, [])
 
   const refreshMap = () => {
     setMapLoading(true);
@@ -76,6 +79,8 @@ export default function MapRoute({navigation}) {
       const allLat = coordinates.map(coord => coord.lat)
       const allLng = coordinates.map(coord => coord.lng)
 
+      setGPSData(coordinates)
+
       const maxLat = Math.max(...allLat)
       const minLat = Math.min(...allLat)
       const maxLng = Math.max(...allLng)
@@ -91,23 +96,37 @@ export default function MapRoute({navigation}) {
       setLatLngDelta(prev => {
         return {...prev, ...latLng}
       })
-
-
     })
   }
 
+  useEffect(() => {
+    refreshMap()
+    setMapLoading(false)
+  }, [])
 
-  if (loading) return (<View style={styles.container}>
-    <Text>Getting Data ...</Text>
-  </View>)
 
-  if (mapLoading) return (<View style={styles.container}>
-    <Text>Map Loading ...</Text>
-  </View>)
+  const onStartHandler = (action) => {
+    if (action === "start") {
+      setLocationTick(0)
+    } else {
+      setLocationTick(-10)
+    }
+  }
 
-  if (routeData.length === 0) return (<View style={styles.container}>
-    <Text style={{color: "black"}}>No Data</Text>
-  </View>)
+  useEffect(() => {
+    if (locationTick >= 0 && locationTick < GPSData.length) {
+      setCurrentLocation(GPSData[locationTick])
+
+      setTimeout(() => {
+        setLocationTick(prevState => prevState + 1)
+      }, 10);
+    }
+  }, [locationTick])
+
+
+  if (loading) return <LoadingView message={"Getting Data ..."} color={"white"}/>
+  if (mapLoading) return <LoadingView message={"Map Loading ..."} color={"white"}/>
+  if (routeData === null) return <LoadingView message={error ? error.message : "No Data"} color={"white"}/>
 
   return (
     <View style={styles.container}>
@@ -122,9 +141,13 @@ export default function MapRoute({navigation}) {
                      startWayPoint={startWayPoint}
                      endWayPoint={endWayPoint}
           />
+          <CurrentLocation coordinates={currentLocation}/>
 
         </MapView>
+
         <InstructionOverlay instructions={routeData.instructions}/>
+        <RouteActionControl callback={onStartHandler}/>
+
       </View>
 
     </View>
@@ -158,5 +181,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: "space-between"
   }
-
 });

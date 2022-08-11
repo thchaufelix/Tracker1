@@ -86,8 +86,9 @@ export const en ={
 
     routeDistance: "Distance",
     routeModifier: "Modifier",
-    routeDistanceUnit: "m"
-
+    routeDistanceUnit: "m",
+    actionStart: "Start",
+    actionEnd: "End",
 }
 
 
@@ -180,5 +181,7 @@ export const zh ={
 
     routeDistance: "距離",
     routeModifier: "方向",
-    routeDistanceUnit: "米"
+    routeDistanceUnit: "米",
+    actionStart: "開始",
+    actionEnd: "完結",
 }
