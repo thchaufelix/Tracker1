@@ -1,14 +1,15 @@
 import React from "react";
 import {Pressable, StyleSheet} from "react-native";
 
-const CustomButton = ({children, callback, disable, style={}}) => (
+const CustomButton = ({children, callback, disable, style={}, hidden=false}) => (
   <Pressable onPress={callback}
-             disabled={disable}
+             disabled={disable || hidden}
              style={({pressed}) => [
                styles.cardContainer,
                style,
                ...(disable ? [styles.disable] : []),
                ...(pressed ? [styles.pressed] : []),
+               ...(hidden ? [styles.hidden] : []),
              ]}>
     {children}
   </Pressable>
@@ -35,5 +36,8 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.6
+  },
+  hidden:{
+    opacity:0
   }
 })

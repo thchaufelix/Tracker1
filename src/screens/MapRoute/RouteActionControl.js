@@ -5,28 +5,24 @@ import i18n from "i18n-js";
 import CustomButton from "../../component/CustomButton";
 
 
-const RouteActionControl = ({callback}) => {
-  const [state, setState] = useState("stop");
+const RouteActionControl = ({currentState, callback}) => {
 
   const onPressHandler = (action) => {
-    setState(action)
     callback(action)
   }
 
   return (
     <View style={styles.container}>
 
-      {state !== "start" ?
-        <CustomButton disable={state === "start"}
-                      callback={() => onPressHandler("start")}
+      {currentState !== "start" ?
+        <CustomButton callback={() => onPressHandler("start")}
                       style={[styles.startBnColor, styles.BnStyle]}
         >
           <Text style={{color: "#eee"}}>{i18n.t("actionStart")}</Text>
         </CustomButton> : null}
 
-      {state === "start" ?
-        <CustomButton disable={state !== "start"}
-                      callback={() => onPressHandler("stop")}
+      {currentState === "start" ?
+        <CustomButton callback={() => onPressHandler("stop")}
                       style={[styles.endBnColor, styles.BnStyle]}
         >
           <Text style={{color: "#eee"}}>{i18n.t("actionEnd")}</Text>
@@ -41,7 +37,7 @@ export default RouteActionControl;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "80%",
+    width: 80,
     backgroundColor: "transparent",
 
     position: "absolute",

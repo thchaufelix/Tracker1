@@ -6,22 +6,35 @@ import i18n from "i18n-js";
 import CustomButton from "../../component/CustomButton";
 
 
-const SwitchRouteControl = ({availableRoute, setAvailableRoute}) => {
+const SwitchRouteControl = ({currentState, availableRoute, callback}) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
+
+  const onSelectHandler = (select) => {
+    if (select === "<-") {
+      callback(availableRoute[selectedIndex - 1])
+      setSelectedIndex(prevState => prevState - 1)
+    }
+    if (select === "->") {
+      callback(availableRoute[selectedIndex + 1])
+      setSelectedIndex(prevState => prevState + 1)
+    }
+  }
 
   return (
     <View style={styles.container}>
       <CustomButton disable={selectedIndex === 0}
-                    callback={() => setSelectedIndex(prevState => prevState + 1)}
+                    hidden={currentState === "start"}
+                    callback={() => onSelectHandler("<-")}
                     style={styles.bn}
-                    >
+      >
         <Text style={{color: "#eee"}}>{"<-"}</Text>
       </CustomButton>
 
-      <CustomButton disable={selectedIndex >= availableRoute.length}
-                    callback={() => setSelectedIndex(prevState => prevState - 1)}
+      <CustomButton disable={selectedIndex +1 >= availableRoute.length}
+                    hidden={currentState === "start"}
+                    callback={() => onSelectHandler("->")}
                     style={styles.bn}
-                    >
+      >
         <Text style={{color: "#eee"}}>{"->"}</Text>
       </CustomButton>
     </View>
@@ -53,7 +66,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  bn:{
+  bn: {
     width: 105,
     borderColor: 'rgba(66,133,244, 0.8)',
     backgroundColor: 'rgba(52,168,83, 0.6)',

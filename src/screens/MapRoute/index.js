@@ -31,8 +31,10 @@ const Header = ({navigation}) => {
 
 export default function MapRoute({navigation}) {
 
-  // Temp GPS Data
+  // GPS Location Control
   const [locationTick, setLocationTick] = useState(-1);
+  const [currentLocation, setCurrentLocation] = useState({lat: 0, lng: 0, index: -1});
+  const [vehicleState, setVehicleState] = useState("stop")
 
   // Basic Params
   const {token, deviceData} = useContext(AccountContext);
@@ -44,7 +46,7 @@ export default function MapRoute({navigation}) {
   // Display Data
   const [GPSData, setGPSData] = useState([]);
   const [routeData, setRouteData] = useState(null);
-  const [currentLocation, setCurrentLocation] = useState({lat: 0, lng: 0, index: -1});
+
 
   // Map Setup
   const [startWayPoint, setStartWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
@@ -66,53 +68,59 @@ export default function MapRoute({navigation}) {
     params: {project: deviceData.pj}
   }, {manual: true});
 
-  const refreshMap = (url) => {
-    setMapLoading(true);
+  const updateTaskData = (url) => {
     executeGetLatest({url: url}).then(response => {
-      const routeData = response.data[0].site_plant_route
-      setRouteData(routeData.route[0])
+      setAvailableRouting(response.data)
+      console.log(response.data[0])
+      loadRoute(response.data[0])
+    })
+  }
 
-      const waypoints = routeData.route[0].waypoints
-      const firstWayPoint = waypoints[0]
-      const lastWayPoint = waypoints[waypoints.length - 1]
+  const loadRoute = (routeData) => {
+    setRouteData(routeData)
 
-      const startWayPt = {latitude: firstWayPoint.latLng.lat, longitude: firstWayPoint.latLng.lng}
-      const endWayPt = {latitude: lastWayPoint.latLng.lat, longitude: lastWayPoint.latLng.lng}
+    const waypoints = routeData.site_plant_route.route[0].waypoints
+    const firstWayPoint = waypoints[0]
+    const lastWayPoint = waypoints[waypoints.length - 1]
 
-      setStartWayPoint(startWayPt)
-      setEndWayPoint(endWayPt)
+    const startWayPt = {latitude: firstWayPoint.latLng.lat, longitude: firstWayPoint.latLng.lng}
+    const endWayPt = {latitude: lastWayPoint.latLng.lat, longitude: lastWayPoint.latLng.lng}
 
-      const coordinates = routeData.route[0].coordinates
-      const allLat = coordinates.map(coord => coord.lat)
-      const allLng = coordinates.map(coord => coord.lng)
+    setStartWayPoint(startWayPt)
+    setEndWayPoint(endWayPt)
 
-      setGPSData(coordinates)
+    const coordinates = routeData.site_plant_route.route[0].coordinates
+    const allLat = coordinates.map(coord => coord.lat)
+    const allLng = coordinates.map(coord => coord.lng)
 
-      const maxLat = Math.max(...allLat)
-      const minLat = Math.min(...allLat)
-      const maxLng = Math.max(...allLng)
-      const minLng = Math.min(...allLng)
+    setGPSData(coordinates)
 
-      const latLng = {
-        latitude: (maxLat + minLat) / 2,
-        longitude: (maxLng + minLng) / 2,
-        latitudeDelta: (maxLat - minLat) * 1.35,
-        longitudeDelta: (maxLng - minLng) * 1.35,
-      }
+    const maxLat = Math.max(...allLat)
+    const minLat = Math.min(...allLat)
+    const maxLng = Math.max(...allLng)
+    const minLng = Math.min(...allLng)
 
-      setLatLngDelta(prev => {
-        return {...prev, ...latLng}
-      })
+    const latLng = {
+      latitude: (maxLat + minLat) / 2,
+      longitude: (maxLng + minLng) / 2,
+      latitudeDelta: (maxLat - minLat) * 1.35,
+      longitudeDelta: (maxLng - minLng) * 1.35,
+    }
+
+    setLatLngDelta(prev => {
+      return {...prev, ...latLng}
     })
   }
 
   useEffect(() => {
-    refreshMap(apiUri + plantRouteTaskAPI)
+    updateTaskData(apiUri + plantRouteTaskAPI)
+
     setMapLoading(false)
   }, [])
 
 
-  const onStartHandler = (action) => {
+  const actionHandler = (action) => {
+    setVehicleState(action)
     if (action === "start") {
       setLocationTick(0)
     } else {
@@ -122,8 +130,10 @@ export default function MapRoute({navigation}) {
 
   const onReachHandler = () => {
     console.log("finish end")
+    setVehicleState("stop")
   }
 
+  // Update GPS Location Function
   useEffect(() => {
     if (locationTick >= 0 && locationTick < GPSData.length) {
       setCurrentLocation(GPSData[locationTick])
@@ -144,11 +154,11 @@ export default function MapRoute({navigation}) {
       <Header navigation={navigation}/>
       <View style={{alignItems: 'center', justifyContent: "center", height: "92%", width: "98%", marginBottom: 3}}>
         <MapView style={styles.map}
-                 initialRegion={latLngDelta}
+                 region={latLngDelta}
                  showsPointsOfInterest={false}
         >
 
-          <RouteView coordinates={routeData.coordinates}
+          <RouteView coordinates={routeData.site_plant_route.route[0].coordinates}
                      startWayPoint={startWayPoint}
                      endWayPoint={endWayPoint}
           />
@@ -156,16 +166,20 @@ export default function MapRoute({navigation}) {
 
         </MapView>
 
-        <InstructionOverlay instructions={routeData.instructions}
+        <InstructionOverlay instructions={routeData.site_plant_route.route[0].instructions}
                             currentLocation={currentLocation}
                             GPSData={GPSData}
                             onReachHandler={onReachHandler}
         />
-        <RouteActionControl callback={onStartHandler}/>
-
         <SwitchRouteControl availableRoute={availableRouting}
-                            setAvailableRoute={setAvailableRouting}
-                            />
+                            currentState={vehicleState}
+                            callback={loadRoute}
+        />
+
+        <RouteActionControl currentState={vehicleState}
+                            callback={actionHandler}
+        />
+
 
       </View>
 
