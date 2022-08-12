@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
 
   bn: {
     width: 105,
-    borderColor: 'rgba(66,133,244, 0.8)',
+    borderColor: 'rgba(52,168,83, 0.8)',
     backgroundColor: 'rgba(52,168,83, 0.6)',
   }
 

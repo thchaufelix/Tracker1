@@ -28,6 +28,23 @@ const Header = ({navigation}) => {
   )
 }
 
+const getLatLngProfile = (coordinates) => {
+  const allLat = coordinates.map(coord => coord.lat)
+  const allLng = coordinates.map(coord => coord.lng)
+
+  const maxLat = Math.max(...allLat)
+  const minLat = Math.min(...allLat)
+  const maxLng = Math.max(...allLng)
+  const minLng = Math.min(...allLng)
+
+  return {
+    latitude: (maxLat + minLat) / 2,
+    longitude: (maxLng + minLng) / 2,
+    latitudeDelta: (maxLat - minLat) * 1.35,
+    longitudeDelta: (maxLng - minLng) * 1.35,
+  }
+}
+
 
 export default function MapRoute({navigation}) {
 
@@ -40,13 +57,11 @@ export default function MapRoute({navigation}) {
   const {token, deviceData} = useContext(AccountContext);
 
   // Control Setting
-  const [mapLoading, setMapLoading] = useState(true);
   const [availableRouting, setAvailableRouting] = useState([]);
 
   // Display Data
   const [GPSData, setGPSData] = useState([]);
   const [routeData, setRouteData] = useState(null);
-
 
   // Map Setup
   const [startWayPoint, setStartWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
@@ -71,7 +86,6 @@ export default function MapRoute({navigation}) {
   const updateTaskData = (url) => {
     executeGetLatest({url: url}).then(response => {
       setAvailableRouting(response.data)
-      console.log(response.data[0])
       loadRoute(response.data[0])
     })
   }
@@ -90,35 +104,18 @@ export default function MapRoute({navigation}) {
     setEndWayPoint(endWayPt)
 
     const coordinates = routeData.site_plant_route.route[0].coordinates
-    const allLat = coordinates.map(coord => coord.lat)
-    const allLng = coordinates.map(coord => coord.lng)
-
     setGPSData(coordinates)
 
-    const maxLat = Math.max(...allLat)
-    const minLat = Math.min(...allLat)
-    const maxLng = Math.max(...allLng)
-    const minLng = Math.min(...allLng)
-
-    const latLng = {
-      latitude: (maxLat + minLat) / 2,
-      longitude: (maxLng + minLng) / 2,
-      latitudeDelta: (maxLat - minLat) * 1.35,
-      longitudeDelta: (maxLng - minLng) * 1.35,
-    }
-
-    setLatLngDelta(prev => {
-      return {...prev, ...latLng}
-    })
+    const latLng = getLatLngProfile(coordinates)
+    setLatLngDelta(prev => {return {...prev, ...latLng}})
   }
 
   useEffect(() => {
     updateTaskData(apiUri + plantRouteTaskAPI)
-
-    setMapLoading(false)
   }, [])
 
 
+  // Start / Stop Button Control
   const actionHandler = (action) => {
     setVehicleState(action)
     if (action === "start") {
@@ -128,8 +125,9 @@ export default function MapRoute({navigation}) {
     }
   }
 
+  // Last Instruction Reach
   const onReachHandler = () => {
-    console.log("finish end")
+    console.log("finish end", routeData.id)
     setVehicleState("stop")
   }
 
@@ -146,7 +144,6 @@ export default function MapRoute({navigation}) {
 
 
   if (loading) return <LoadingView message={"Getting Data ..."} color={"white"}/>
-  if (mapLoading) return <LoadingView message={"Map Loading ..."} color={"white"}/>
   if (routeData === null) return <LoadingView message={error ? error.message : "No Data"} color={"white"}/>
 
   return (
@@ -179,7 +176,6 @@ export default function MapRoute({navigation}) {
         <RouteActionControl currentState={vehicleState}
                             callback={actionHandler}
         />
-
 
       </View>
 

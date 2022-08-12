@@ -6,8 +6,7 @@ const RouteView = ({coordinates, startWayPoint, endWayPoint}) => {
   const [route, setRoute] = useState([])
 
   useEffect(() => {
-    setRoute(
-      coordinates.map(coord => {
+    setRoute(coordinates.map(coord => {
         return {
           latitude: coord.lat,
           longitude: coord.lng

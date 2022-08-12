@@ -20,7 +20,7 @@ const InstructionOverlay = ({instructions, currentLocation, GPSData, onReachHand
         const distance = parseInt(haversine_distance(current_latLng, next_latLng) * 1000)
         setDistanceToCheckPt(distance)
 
-        if (distance < 50) {
+        if (distance < 10) {
           setNextCheckPoint(prevState => prevState + 1)
 
           if (nextCheckPoint + 1 >= instructions.length){
