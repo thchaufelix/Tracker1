@@ -30,7 +30,6 @@ const AccountContextProvider = (props) => {
     const onScannerDataListener = bleManagerEmitter.addListener('scanner_data', handleDebugMsg);
 
     return (() => {
-
       onScannerDataListener.remove()
       IBeaconPlaygroundModule.stopScanning();
     })

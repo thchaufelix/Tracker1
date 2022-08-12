@@ -12,6 +12,7 @@ import InstructionOverlay from "./InstructionOverlay";
 import CurrentLocation from "./CurrentLocation";
 import LoadingView from "../../global/LoadingView";
 import RouteActionControl from "./RouteActionControl";
+import SwitchRouteControl from "./SwitchRouteControl";
 
 
 const Header = ({navigation}) => {
@@ -31,15 +32,21 @@ const Header = ({navigation}) => {
 export default function MapRoute({navigation}) {
 
   // Temp GPS Data
-  const [GPSData, setGPSData] = useState([]);
   const [locationTick, setLocationTick] = useState(-1);
 
+  // Basic Params
   const {token, deviceData} = useContext(AccountContext);
-  const [mapLoading, setMapLoading] = useState(true);
 
+  // Control Setting
+  const [mapLoading, setMapLoading] = useState(true);
+  const [availableRouting, setAvailableRouting] = useState([]);
+
+  // Display Data
+  const [GPSData, setGPSData] = useState([]);
   const [routeData, setRouteData] = useState(null);
   const [currentLocation, setCurrentLocation] = useState({lat: 0, lng: 0, index: -1});
 
+  // Map Setup
   const [startWayPoint, setStartWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
   const [endWayPoint, setEndWayPoint] = useState({latitude: 22.377510, longitude: 114.112639,});
   const [latLngDelta, setLatLngDelta] = useState({
@@ -49,6 +56,7 @@ export default function MapRoute({navigation}) {
     longitudeDelta: 0.6
   });
 
+  // API Hock
   const [{data, loading, error}, executeGetLatest] = useAxios({
     method: "GET",
     headers: {
@@ -56,7 +64,7 @@ export default function MapRoute({navigation}) {
       "Fcm-Imei": deviceData.imei
     },
     params: {project: deviceData.pj}
-  }, {manual: true})
+  }, {manual: true});
 
   const refreshMap = (url) => {
     setMapLoading(true);
@@ -113,7 +121,7 @@ export default function MapRoute({navigation}) {
   }
 
   const onReachHandler = () => {
-
+    console.log("finish end")
   }
 
   useEffect(() => {
@@ -121,7 +129,7 @@ export default function MapRoute({navigation}) {
       setCurrentLocation(GPSData[locationTick])
 
       setTimeout(() => {
-        setLocationTick(prevState => prevState + 5 > GPSData.length ? GPSData.length-1 : prevState + 5)
+        setLocationTick(prevState => prevState + 2 > GPSData.length ? GPSData.length - 1 : prevState + 2)
       }, 100);
     }
   }, [locationTick])
@@ -154,6 +162,10 @@ export default function MapRoute({navigation}) {
                             onReachHandler={onReachHandler}
         />
         <RouteActionControl callback={onStartHandler}/>
+
+        <SwitchRouteControl availableRoute={availableRouting}
+                            setAvailableRoute={setAvailableRouting}
+                            />
 
       </View>
 

@@ -23,10 +23,9 @@ const InstructionOverlay = ({instructions, currentLocation, GPSData, onReachHand
         if (distance < 50) {
           setNextCheckPoint(prevState => prevState + 1)
 
-          if (nextCheckPoint + 1 < instructions.length){
+          if (nextCheckPoint + 1 >= instructions.length){
             onReachHandler()
           }
-
         }
       }
     }

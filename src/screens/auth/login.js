@@ -1,7 +1,7 @@
 import React , { useContext, useState, useEffect } from 'react'
 import { StyleSheet, TextInput, View, TouchableOpacity, Platform, Clipboard,Alert, Keyboard,ActivityIndicator, TouchableHighlight, TouchableWithoutFeedback } from 'react-native'
 import { Formik } from 'formik'
-import * as yup from 'yup'
+// import * as yup from 'yup'
 import { Spinner,Text, Modal,Card} from '@ui-kitten/components';
 import { Ionicons,MaterialIcons } from '@expo/vector-icons'
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -11,16 +11,16 @@ import {globalStyles} from '../../global/style'
 import { AppRoute } from '../../navigator/appRoutes'
 // import {AccountContext} from '../../context/authContext'
 // import * as Notifications from 'expo-notifications'
-import * as Device from 'expo-device';
+// import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import InputComponent from '../../component/form/input'
 import { AccountContext } from '../../Context/authContext';
-import { NativeModules,NativeEventEmitter } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 // import Clipboard from '@react-native-community/clipboard';
 
-const {IBeaconPlaygroundModule} = NativeModules;
-const bleManagerEmitter = new NativeEventEmitter(NativeModules.IBeaconModule);
+// const {IBeaconPlaygroundModule} = NativeModules;
+// import { NativeModules,NativeEventEmitter } from 'react-native';
+// const bleManagerEmitter = new NativeEventEmitter(NativeModules.IBeaconModule);
 
 export default function LoginForm({ navigation, logging }) {
   // const { t, locale, setLocale } = React.useContext(LocalizationContext);
