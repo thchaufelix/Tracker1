@@ -13,6 +13,9 @@ import CurrentLocation from "./CurrentLocation";
 import LoadingView from "../../global/LoadingView";
 import RouteActionControl from "./RouteActionControl";
 import SwitchRouteControl from "./SwitchRouteControl";
+import CustomButton from "../../component/CustomButton";
+import DescriptionOverlay from "./DescriptionOverlay";
+import {getClosestIndex} from "./HelperFunction";
 
 
 const Header = ({navigation}) => {
@@ -75,7 +78,6 @@ export default function MapRoute({navigation}) {
 
   // API Hock
   const [{data, loading, error}, executeGetLatest] = useAxios({
-    method: "GET",
     headers: {
       Authorization: "Token " + token,
       "Fcm-Imei": deviceData.imei
@@ -83,10 +85,23 @@ export default function MapRoute({navigation}) {
     params: {project: deviceData.pj}
   }, {manual: true});
 
-  const updateTaskData = (url) => {
-    executeGetLatest({url: url}).then(response => {
+  const [{data: _, loading: __, error: errorState}, executePostState] = useAxios({
+    method: "PATCH",
+    headers: {
+      Authorization: "Token " + token,
+      "Fcm-Imei": deviceData.imei
+    },
+    params: {project: deviceData.pj}
+  }, {manual: true});
+
+  const updateTaskData = (url, method) => {
+    executeGetLatest({url: url, method: method}).then(response => {
       setAvailableRouting(response.data)
-      loadRoute(response.data[0])
+      if (response.data.length === 0) {
+        setRouteData(null)
+      } else {
+        loadRoute(response.data[0])
+      }
     })
   }
 
@@ -107,34 +122,45 @@ export default function MapRoute({navigation}) {
     setGPSData(coordinates)
 
     const latLng = getLatLngProfile(coordinates)
-    setLatLngDelta(prev => {return {...prev, ...latLng}})
+    setLatLngDelta(prev => {
+      return {...prev, ...latLng}
+    })
   }
 
   useEffect(() => {
-    updateTaskData(apiUri + plantRouteTaskAPI)
+    updateTaskData(apiUri + plantRouteTaskAPI, "GET")
   }, [])
-
 
   // Start / Stop Button Control
   const actionHandler = (action) => {
     setVehicleState(action)
     if (action === "start") {
+      executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/start`})
       setLocationTick(0)
     } else {
+      onReachHandler()
       setLocationTick(-999)
     }
   }
 
   // Last Instruction Reach
   const onReachHandler = () => {
-    console.log("finish end", routeData.id)
     setVehicleState("stop")
+    executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`})
+    updateTaskData(apiUri + plantRouteTaskAPI, "GET")
   }
 
   // Update GPS Location Function
   useEffect(() => {
     if (locationTick >= 0 && locationTick < GPSData.length) {
-      setCurrentLocation(GPSData[locationTick])
+      const currentLocationFake = {
+        lat: GPSData[locationTick].lat + (Math.random() - 0.5) / 1050,
+        lng: GPSData[locationTick].lng + (Math.random() - 0.5) / 1050,
+      }
+      setCurrentLocation(currentLocationFake)
+
+      const closest = getClosestIndex(GPSData, currentLocationFake)
+      console.log(closest.index === locationTick, closest.distance > 20, closest.distance)
 
       setTimeout(() => {
         setLocationTick(prevState => prevState + 2 > GPSData.length ? GPSData.length - 1 : prevState + 2)
@@ -144,7 +170,15 @@ export default function MapRoute({navigation}) {
 
 
   if (loading) return <LoadingView message={"Getting Data ..."} color={"white"}/>
-  if (routeData === null) return <LoadingView message={error ? error.message : "No Data"} color={"white"}/>
+  if (routeData === null) return (
+    <LoadingView message={error ? error.message : i18n.t("noDataMessage")} color={"white"}>
+      <CustomButton callback={() => updateTaskData(apiUri + plantRouteTaskAPI, "GET")}
+                    style={{backgroundColor: "#2E333A", borderColor: "#2E333A", height:50}}
+      >
+        <Text color={{color: "white"}}>Refresh</Text>
+      </CustomButton>
+    </LoadingView>
+  )
 
   return (
     <View style={styles.container}>
@@ -154,15 +188,17 @@ export default function MapRoute({navigation}) {
                  region={latLngDelta}
                  showsPointsOfInterest={false}
         >
-
           <RouteView coordinates={routeData.site_plant_route.route[0].coordinates}
                      startWayPoint={startWayPoint}
                      endWayPoint={endWayPoint}
           />
-          <CurrentLocation coordinates={currentLocation}/>
-
+          <CurrentLocation coordinates={currentLocation}
+          />
         </MapView>
 
+        <DescriptionOverlay currentState={vehicleState}
+                            message={routeData.site_plant_route.description}
+        />
         <InstructionOverlay instructions={routeData.site_plant_route.route[0].instructions}
                             currentLocation={currentLocation}
                             GPSData={GPSData}
@@ -172,11 +208,9 @@ export default function MapRoute({navigation}) {
                             currentState={vehicleState}
                             callback={loadRoute}
         />
-
         <RouteActionControl currentState={vehicleState}
                             callback={actionHandler}
         />
-
       </View>
 
     </View>

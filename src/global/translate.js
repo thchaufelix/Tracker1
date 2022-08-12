@@ -89,6 +89,7 @@ export const en ={
     routeDistanceUnit: "m",
     actionStart: "Start",
     actionEnd: "End",
+    noDataMessage: "No Route Data available",
 }
 
 
@@ -178,10 +179,11 @@ export const zh ={
     SelectPrj:'請選擇項目',
     Accept:'准許',
 
-
+    // Map Route
     routeDistance: "距離",
     routeModifier: "方向",
     routeDistanceUnit: "米",
     actionStart: "開始",
     actionEnd: "完結",
+    noDataMessage: "沒有路徑數據",
 }

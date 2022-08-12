@@ -23,8 +23,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
 
     padding: 4,
-    width: 120,
-    height: 60,
+    width: "100%",
+    height: "100%",
 
     alignItems: 'center',
     justifyContent: "center",

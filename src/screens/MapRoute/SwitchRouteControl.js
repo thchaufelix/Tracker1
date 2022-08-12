@@ -10,14 +10,17 @@ const SwitchRouteControl = ({currentState, availableRoute, callback}) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const onSelectHandler = (select) => {
+    let newIndex = selectedIndex;
     if (select === "<-") {
-      callback(availableRoute[selectedIndex - 1])
-      setSelectedIndex(prevState => prevState - 1)
+      newIndex = selectedIndex - 1
     }
     if (select === "->") {
-      callback(availableRoute[selectedIndex + 1])
-      setSelectedIndex(prevState => prevState + 1)
+      newIndex = selectedIndex + 1
     }
+
+    newIndex = Math.min(Math.max(newIndex, 0), availableRoute.length - 1)
+    callback(availableRoute[newIndex])
+    setSelectedIndex(newIndex)
   }
 
   return (
@@ -30,7 +33,7 @@ const SwitchRouteControl = ({currentState, availableRoute, callback}) => {
         <Text style={{color: "#eee"}}>{"<-"}</Text>
       </CustomButton>
 
-      <CustomButton disable={selectedIndex +1 >= availableRoute.length}
+      <CustomButton disable={selectedIndex + 1 >= availableRoute.length}
                     hidden={currentState === "start"}
                     callback={() => onSelectHandler("->")}
                     style={styles.bn}
@@ -68,6 +71,7 @@ const styles = StyleSheet.create({
 
   bn: {
     width: 105,
+    height: 60,
     borderColor: 'rgba(52,168,83, 0.8)',
     backgroundColor: 'rgba(52,168,83, 0.6)',
   }

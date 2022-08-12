@@ -12,11 +12,19 @@ export function haversine_distance(origin, destination) {
   const a =
     Math.sin(dlat / 2) * Math.sin(dlat / 2) +
     Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dlon / 2) *
-      Math.sin(dlon / 2);
+    Math.cos(toRadians(lat2)) *
+    Math.sin(dlon / 2) *
+    Math.sin(dlon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = radius * c;
 
   return d;
+}
+
+export const getClosestIndex = (arr, latLng) => {
+  return arr.reduce((prev, curr, index) => {
+    const currDist = haversine_distance([curr.lat, curr.lng], [latLng.lat, latLng.lng])
+    const prevDist = haversine_distance([prev.lat, prev.lng], [latLng.lat, latLng.lng])
+    return (currDist < prevDist ? {...curr, index: index, distance: parseInt(currDist*1000)} : prev)
+  });
 }
