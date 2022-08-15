@@ -107,7 +107,7 @@ export default function MapRoute({navigation}) {
       } else {
         setRouteData(response.data[0])
       }
-    }).catch(err => console.log("ERROR", err))
+    }).catch(err => console.log("ERROR", url))
 
   }
 
@@ -156,8 +156,12 @@ export default function MapRoute({navigation}) {
   // Last Instruction Reach
   const onReachHandler = (APICall = true) => {
     setVehicleState("stop")
-    if (APICall) executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`})
-    updateTaskData(apiUri + plantRouteTaskAPI, "GET")
+    if (APICall) executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`}).then(response => {
+      updateTaskData(apiUri + plantRouteTaskAPI, "GET")
+    })
+    else {
+      updateTaskData(apiUri + plantRouteTaskAPI, "GET")
+    }
   }
 
   // Update GPS Location Function
