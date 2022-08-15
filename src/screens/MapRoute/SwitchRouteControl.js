@@ -4,30 +4,21 @@ import {StyleSheet, View} from "react-native";
 import {Text} from "@ui-kitten/components";
 import i18n from "i18n-js";
 import CustomButton from "../../component/CustomButton";
+import {clamp} from "./HelperFunction";
 
 
 const SwitchRouteControl = ({currentState, availableRoute, callback}) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
-  const onSelectHandler = (select) => {
-    let newIndex = selectedIndex;
-    if (select === "<-") {
-      newIndex = selectedIndex - 1
-    }
-    if (select === "->") {
-      newIndex = selectedIndex + 1
-    }
-
-    newIndex = Math.min(Math.max(newIndex, 0), availableRoute.length - 1)
-    callback(availableRoute[newIndex])
-    setSelectedIndex(newIndex)
-  }
+  useEffect(() => {
+    callback(availableRoute[selectedIndex])
+  }, [selectedIndex])
 
   return (
     <View style={styles.container}>
       <CustomButton disable={selectedIndex === 0}
                     hidden={currentState === "start"}
-                    callback={() => onSelectHandler("<-")}
+                    callback={() => setSelectedIndex(prevState => clamp(prevState - 1, availableRoute.length - 1, 0))}
                     style={styles.bn}
       >
         <Text style={{color: "#eee"}}>{"<-"}</Text>
@@ -35,7 +26,7 @@ const SwitchRouteControl = ({currentState, availableRoute, callback}) => {
 
       <CustomButton disable={selectedIndex + 1 >= availableRoute.length}
                     hidden={currentState === "start"}
-                    callback={() => onSelectHandler("->")}
+                    callback={() => setSelectedIndex(prevState =>  clamp(prevState + 1, availableRoute.length - 1, 0))}
                     style={styles.bn}
       >
         <Text style={{color: "#eee"}}>{"->"}</Text>

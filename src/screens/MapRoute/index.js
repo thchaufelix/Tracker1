@@ -15,7 +15,7 @@ import RouteActionControl from "./RouteActionControl";
 import SwitchRouteControl from "./SwitchRouteControl";
 import CustomButton from "../../component/CustomButton";
 import DescriptionOverlay from "./DescriptionOverlay";
-import {getClosestIndex} from "./HelperFunction";
+import {getClosestArray, getClosestIndexLatLng} from "./HelperFunction";
 
 
 const Header = ({navigation}) => {
@@ -53,14 +53,19 @@ export default function MapRoute({navigation}) {
 
   // GPS Location Control
   const [locationTick, setLocationTick] = useState(-1);
-  const [currentLocation, setCurrentLocation] = useState({lat: 0, lng: 0, index: -1});
+  const [currentLocation, setCurrentLocation] = useState({lat: 0, lng: 0, index: -1, closetCoord: 0});
   const [vehicleState, setVehicleState] = useState("stop")
 
   // Basic Params
   const {token, deviceData} = useContext(AccountContext);
+  const runningRegionDelta = {
+    latitudeDelta: 0.022,
+    longitudeDelta: 0.022
+  }
 
   // Control Setting
   const [availableRouting, setAvailableRouting] = useState([]);
+  const [offTrack, setOffTrack] = useState(false);
 
   // Display Data
   const [GPSData, setGPSData] = useState([]);
@@ -94,59 +99,64 @@ export default function MapRoute({navigation}) {
     params: {project: deviceData.pj}
   }, {manual: true});
 
-  const updateTaskData = (url, method) => {
-    executeGetLatest({url: url, method: method}).then(response => {
+  const updateTaskData = (url, method, signal: {}) => {
+    executeGetLatest({url: url, method: method, signal: signal}).then(response => {
       setAvailableRouting(response.data)
       if (response.data.length === 0) {
         setRouteData(null)
       } else {
-        loadRoute(response.data[0])
+        setRouteData(response.data[0])
       }
-    })
+    }).catch(err => console.log("ERROR", err))
+
   }
 
-  const loadRoute = (routeData) => {
-    setRouteData(routeData)
+  useEffect(() => {
+    if (routeData !== null) {
+      const waypoints = routeData.site_plant_route.route[0].waypoints
+      const firstWayPoint = waypoints[0]
+      const lastWayPoint = waypoints[waypoints.length - 1]
 
-    const waypoints = routeData.site_plant_route.route[0].waypoints
-    const firstWayPoint = waypoints[0]
-    const lastWayPoint = waypoints[waypoints.length - 1]
+      const startWayPt = {latitude: firstWayPoint.latLng.lat, longitude: firstWayPoint.latLng.lng}
+      const endWayPt = {latitude: lastWayPoint.latLng.lat, longitude: lastWayPoint.latLng.lng}
 
-    const startWayPt = {latitude: firstWayPoint.latLng.lat, longitude: firstWayPoint.latLng.lng}
-    const endWayPt = {latitude: lastWayPoint.latLng.lat, longitude: lastWayPoint.latLng.lng}
+      setStartWayPoint(startWayPt)
+      setEndWayPoint(endWayPt)
 
-    setStartWayPoint(startWayPt)
-    setEndWayPoint(endWayPt)
+      const coordinates = routeData.site_plant_route.route[0].coordinates
+      setGPSData(coordinates)
 
-    const coordinates = routeData.site_plant_route.route[0].coordinates
-    setGPSData(coordinates)
+      const latLng = getLatLngProfile(coordinates)
+      setLatLngDelta(prev => {
+        return {...prev, ...latLng}
+      })
 
-    const latLng = getLatLngProfile(coordinates)
-    setLatLngDelta(prev => {
-      return {...prev, ...latLng}
-    })
-  }
+      if (routeData.processing) {
+        actionHandler("start", false)
+      }
+    }
+  }, [routeData])
 
   useEffect(() => {
     updateTaskData(apiUri + plantRouteTaskAPI, "GET")
   }, [])
 
-  // Start / Stop Button Control
-  const actionHandler = (action) => {
+  // Start, Stop Button Control
+  const actionHandler = (action, APICall = true) => {
     setVehicleState(action)
     if (action === "start") {
-      executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/start`})
+      if (APICall) executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/start`})
       setLocationTick(0)
     } else {
-      onReachHandler()
+      onReachHandler(APICall)
       setLocationTick(-999)
     }
   }
 
   // Last Instruction Reach
-  const onReachHandler = () => {
+  const onReachHandler = (APICall = true) => {
     setVehicleState("stop")
-    executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`})
+    if (APICall) executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`})
     updateTaskData(apiUri + plantRouteTaskAPI, "GET")
   }
 
@@ -157,10 +167,13 @@ export default function MapRoute({navigation}) {
         lat: GPSData[locationTick].lat + (Math.random() - 0.5) / 1050,
         lng: GPSData[locationTick].lng + (Math.random() - 0.5) / 1050,
       }
-      setCurrentLocation(currentLocationFake)
 
-      const closest = getClosestIndex(GPSData, currentLocationFake)
-      console.log(closest.index === locationTick, closest.distance > 20, closest.distance)
+      // Get The Closest Route
+      const closest = getClosestIndexLatLng(GPSData, currentLocationFake)
+      console.log(closest.index, closest.distance > 20, closest.distance)
+
+      setOffTrack(closest.distance > 20)
+      setCurrentLocation({...currentLocationFake, ...{closetCoord: closest.index, distance: closest.distance}})
 
       setTimeout(() => {
         setLocationTick(prevState => prevState + 2 > GPSData.length ? GPSData.length - 1 : prevState + 2)
@@ -169,44 +182,55 @@ export default function MapRoute({navigation}) {
   }, [locationTick])
 
 
+  // Loading Screen
   if (loading) return <LoadingView message={"Getting Data ..."} color={"white"}/>
   if (routeData === null) return (
     <LoadingView message={error ? error.message : i18n.t("noDataMessage")} color={"white"}>
       <CustomButton callback={() => updateTaskData(apiUri + plantRouteTaskAPI, "GET")}
-                    style={{backgroundColor: "#2E333A", borderColor: "#2E333A", height:50}}
+                    style={{backgroundColor: "#2E333A", borderColor: "#2E333A", height: 50}}
       >
         <Text color={{color: "white"}}>Refresh</Text>
       </CustomButton>
     </LoadingView>
   )
 
+  // Loaded Screen
   return (
     <View style={styles.container}>
       <Header navigation={navigation}/>
       <View style={{alignItems: 'center', justifyContent: "center", height: "92%", width: "98%", marginBottom: 3}}>
         <MapView style={styles.map}
-                 region={latLngDelta}
+                 region={vehicleState === "start" ?
+                   {
+                     ...{latitude: currentLocation.lat, longitude: currentLocation.lng},
+                     ...runningRegionDelta
+                   } :
+                   latLngDelta}
                  showsPointsOfInterest={false}
         >
           <RouteView coordinates={routeData.site_plant_route.route[0].coordinates}
                      startWayPoint={startWayPoint}
                      endWayPoint={endWayPoint}
           />
+
           <CurrentLocation coordinates={currentLocation}
+                           color={"#FBBC05"}
           />
+
         </MapView>
 
-        <DescriptionOverlay currentState={vehicleState}
+        <DescriptionOverlay show={vehicleState !== "start"}
                             message={routeData.site_plant_route.description}
         />
         <InstructionOverlay instructions={routeData.site_plant_route.route[0].instructions}
                             currentLocation={currentLocation}
                             GPSData={GPSData}
                             onReachHandler={onReachHandler}
+                            offTrack={offTrack}
         />
         <SwitchRouteControl availableRoute={availableRouting}
                             currentState={vehicleState}
-                            callback={loadRoute}
+                            callback={setRouteData}
         />
         <RouteActionControl currentState={vehicleState}
                             callback={actionHandler}
@@ -238,7 +262,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     backgroundColor: "#2E333A",
-    zIndex: 2,
 
     flexDirection: "row",
     alignItems: 'center',

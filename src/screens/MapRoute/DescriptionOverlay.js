@@ -6,22 +6,25 @@ import i18n from "i18n-js";
 import CustomButton from "../../component/CustomButton";
 
 
-const DescriptionOverlay = ({currentState, message}) => {
+const DescriptionOverlay = ({show, message}) => {
 
   const doNothing = () => {
 
   }
 
   return (
-    <View style={styles.container}>
-      <CustomButton disable={true}
-                    hidden={currentState === "start"}
-                    callback={doNothing}
-                    style={styles.bn}
-      >
-        <Text style={{color: "#eee"}}>{message}</Text>
-      </CustomButton>
-    </View>
+    <>
+      {show ?
+        <View style={styles.container}>
+          <CustomButton disable={true}
+                        callback={doNothing}
+                        style={styles.bn}
+          >
+            <Text style={{color: "#eee"}}>{message}</Text>
+          </CustomButton>
+        </View> : null}
+    </>
+
   )
 }
 

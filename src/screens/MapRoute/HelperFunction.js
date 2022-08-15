@@ -21,10 +21,16 @@ export function haversine_distance(origin, destination) {
   return d;
 }
 
-export const getClosestIndex = (arr, latLng) => {
+export const getClosestArray = (arr, goal) => {
+  return arr.reduce((prev, curr, index) => (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev))
+}
+
+export const getClosestIndexLatLng = (arr, latLng) => {
   return arr.reduce((prev, curr, index) => {
     const currDist = haversine_distance([curr.lat, curr.lng], [latLng.lat, latLng.lng])
     const prevDist = haversine_distance([prev.lat, prev.lng], [latLng.lat, latLng.lng])
     return (currDist < prevDist ? {...curr, index: index, distance: parseInt(currDist*1000)} : prev)
   });
 }
+
+export const clamp = (curr, upper, lower) => Math.min(Math.max(curr, lower), upper)
