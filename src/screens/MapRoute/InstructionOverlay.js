@@ -4,40 +4,60 @@ import {Text} from "@ui-kitten/components";
 import i18n from "i18n-js";
 import {getClosestArray, haversine_distance} from "./HelperFunction";
 
-const InstructionOverlay = ({instructions, currentLocation, GPSData, onReachHandler, offTrack}) => {
+const InstructionOverlay = ({instructions, currentLocation, currentState, GPSData, onReachHandler, offTrack}) => {
 
   const [nextCheckPoint, setNextCheckPoint] = useState(0)
   const [distanceToCheckPt, setDistanceToCheckPt] = useState(0)
 
-  const wayPointReachHandler = () => {
-    setNextCheckPoint(prevState => {
-      if (prevState + 1 >= instructions.length) {
-        onReachHandler()
-      }
-      return prevState + 1
-    })
+  const wayPointReachHandler = (override = null) => {
+    const nextWayPoint = override ? override + 1 : nextCheckPoint + 1
+    setNextCheckPoint(nextWayPoint)
+
+    if (nextWayPoint >= instructions.length) {
+      onReachHandler()
+      setNextCheckPoint(0)
+    }
+  }
+
+  const getDistance = (nextInstruction, closestInstruction) => {
+    const current_latLng = [currentLocation.lat, currentLocation.lng]
+    const next_latLng = [GPSData[nextInstruction.index].lat, GPSData[nextInstruction.index].lng]
+    const closest_latLng = [GPSData[closestInstruction.index].lat, GPSData[closestInstruction.index].lng]
+
+    const distance = parseInt(haversine_distance(current_latLng, next_latLng) * 1000)
+    const closestDistance = parseInt(haversine_distance(current_latLng, closest_latLng) * 1000)
+
+    return {distance, closestDistance}
   }
 
   useEffect(() => {
-    if (GPSData) {
+    if (GPSData && currentState === "start") {
       const nextInstruction = instructions[nextCheckPoint];
       const instructionGPSIndex = instructions.map(i => i.index)
 
-      const closestInstructGPSIndex = getClosestArray(instructionGPSIndex, currentLocation.closetCoord)
-      const closestInstruction = instructionGPSIndex.indexOf(closestInstructGPSIndex)
-
-      console.log(closestInstructGPSIndex, closestInstruction, nextInstruction.index)
+      const closestInstructionIndex = instructionGPSIndex.indexOf(getClosestArray(instructionGPSIndex, currentLocation.closetCoord))
+      const closestInstruction = instructions[closestInstructionIndex]
 
       if (nextInstruction && GPSData[nextInstruction.index]) {
-        const current_latLng = [currentLocation.lat, currentLocation.lng]
-        const next_latLng = [GPSData[nextInstruction.index].lat, GPSData[nextInstruction.index].lng]
+        // const current_latLng = [currentLocation.lat, currentLocation.lng]
+        // const next_latLng = [GPSData[nextInstruction.index].lat, GPSData[nextInstruction.index].lng]
+        // const closest_latLng = [GPSData[closestInstruction.index].lat, GPSData[closestInstruction.index].lng]
+        //
+        // const distance = parseInt(haversine_distance(current_latLng, next_latLng) * 1000)
+        // const closestDistance = parseInt(haversine_distance(current_latLng, closest_latLng) * 1000)
 
-        const distance = parseInt(haversine_distance(current_latLng, next_latLng) * 1000)
-        setDistanceToCheckPt(distance)
+        const {distance, closestDistance} = getDistance(nextInstruction, closestInstruction)
 
-        if (distance < 10) {
-          wayPointReachHandler()
+        if (closestDistance < 15 && closestInstructionIndex > nextCheckPoint) {
+          wayPointReachHandler(closestInstructionIndex)
+          setDistanceToCheckPt(closestDistance)
+        } else {
+          setDistanceToCheckPt(distance)
+          if (distance < 15) {
+            wayPointReachHandler()
+          }
         }
+
       }
     }
   }, [currentLocation.lat, currentLocation.lng])

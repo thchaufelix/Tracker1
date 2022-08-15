@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from "react";
 import {View, StyleSheet, Dimensions} from 'react-native'
 import {Text} from "@ui-kitten/components";
-import MapView, {Marker, Polyline} from "react-native-maps";
+import MapView, {Circle, Marker, Polyline} from "react-native-maps";
 import i18n from "i18n-js";
 import {MaterialIcons} from "@expo/vector-icons";
 import {AccountContext} from "../../Context/authContext";
@@ -59,13 +59,13 @@ export default function MapRoute({navigation}) {
   // Basic Params
   const {token, deviceData} = useContext(AccountContext);
   const runningRegionDelta = {
-    latitudeDelta: 0.022,
-    longitudeDelta: 0.022
+    latitudeDelta: 0.012,
+    longitudeDelta: 0.012
   }
 
   // Control Setting
   const [availableRouting, setAvailableRouting] = useState([]);
-  const [offTrack, setOffTrack] = useState(false);
+  const [offTrack, setOffTrack] = useState(Array(10).fill(false));
 
   // Display Data
   const [GPSData, setGPSData] = useState([]);
@@ -99,15 +99,19 @@ export default function MapRoute({navigation}) {
     params: {project: deviceData.pj}
   }, {manual: true});
 
-  const updateTaskData = (url, method, signal: {}) => {
-    executeGetLatest({url: url, method: method, signal: signal}).then(response => {
-      setAvailableRouting(response.data)
-      if (response.data.length === 0) {
-        setRouteData(null)
-      } else {
-        setRouteData(response.data[0])
-      }
-    }).catch(err => console.log("ERROR", url))
+  const updateTaskData = async (url, method, signal: {}) => {
+    try {
+      await executeGetLatest({url: url, method: method, signal: signal}).then(response => {
+        setAvailableRouting(response.data)
+        if (response.data.length === 0) {
+          setRouteData(null)
+        } else {
+          setRouteData(response.data[0])
+        }
+      })
+    } catch (e) {
+      console.log("ERROR", url)
+    }
 
   }
 
@@ -124,7 +128,7 @@ export default function MapRoute({navigation}) {
       setEndWayPoint(endWayPt)
 
       const coordinates = routeData.site_plant_route.route[0].coordinates
-      setGPSData(coordinates)
+      setGPSData([...coordinates, ...Array(10).fill(coordinates[coordinates.length - 1])])
 
       const latLng = getLatLngProfile(coordinates)
       setLatLngDelta(prev => {
@@ -145,7 +149,9 @@ export default function MapRoute({navigation}) {
   const actionHandler = (action, APICall = true) => {
     setVehicleState(action)
     if (action === "start") {
-      if (APICall) executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/start`})
+      if (APICall) {
+        executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/start`}).catch(error => console.log("Start Call Fail"))
+      }
       setLocationTick(0)
     } else {
       onReachHandler(APICall)
@@ -155,12 +161,15 @@ export default function MapRoute({navigation}) {
 
   // Last Instruction Reach
   const onReachHandler = (APICall = true) => {
-    setVehicleState("stop")
-    if (APICall) executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`}).then(response => {
-      updateTaskData(apiUri + plantRouteTaskAPI, "GET")
-    })
-    else {
-      updateTaskData(apiUri + plantRouteTaskAPI, "GET")
+    if (vehicleState !== "stop") {
+      setVehicleState("stop")
+      if (APICall) {
+        executePostState({url: apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`}).then(response => {
+          updateTaskData(apiUri + plantRouteTaskAPI, "GET")
+        }).catch(error => console.log("Finish Call Fail " + apiUri + plantRouteTaskAPI + `/${routeData.id}/finish`))
+      } else {
+        updateTaskData(apiUri + plantRouteTaskAPI, "GET")
+      }
     }
   }
 
@@ -168,15 +177,17 @@ export default function MapRoute({navigation}) {
   useEffect(() => {
     if (locationTick >= 0 && locationTick < GPSData.length) {
       const currentLocationFake = {
-        lat: GPSData[locationTick].lat + (Math.random() - 0.5) / 1050,
-        lng: GPSData[locationTick].lng + (Math.random() - 0.5) / 1050,
+        lat: GPSData[locationTick].lat + (Math.random() - 0.5) / 2250,
+        lng: GPSData[locationTick].lng + (Math.random() - 0.5) / 2250,
       }
 
       // Get The Closest Route
       const closest = getClosestIndexLatLng(GPSData, currentLocationFake)
-      console.log(closest.index, closest.distance > 20, closest.distance)
 
-      setOffTrack(closest.distance > 20)
+      setOffTrack(prevState => {
+        prevState.shift()
+        return [...prevState, closest.distance > 20]
+      })
       setCurrentLocation({...currentLocationFake, ...{closetCoord: closest.index, distance: closest.distance}})
 
       setTimeout(() => {
@@ -187,7 +198,7 @@ export default function MapRoute({navigation}) {
 
 
   // Loading Screen
-  if (loading) return <LoadingView message={"Getting Data ..."} color={"white"}/>
+  if (loading && routeData === null) return <LoadingView message={"Getting Data ..."} color={"white"}/>
   if (routeData === null) return (
     <LoadingView message={error ? error.message : i18n.t("noDataMessage")} color={"white"}>
       <CustomButton callback={() => updateTaskData(apiUri + plantRouteTaskAPI, "GET")}
@@ -220,7 +231,6 @@ export default function MapRoute({navigation}) {
           <CurrentLocation coordinates={currentLocation}
                            color={"#FBBC05"}
           />
-
         </MapView>
 
         <DescriptionOverlay show={vehicleState !== "start"}
@@ -228,9 +238,10 @@ export default function MapRoute({navigation}) {
         />
         <InstructionOverlay instructions={routeData.site_plant_route.route[0].instructions}
                             currentLocation={currentLocation}
+                            currentState={vehicleState}
                             GPSData={GPSData}
                             onReachHandler={onReachHandler}
-                            offTrack={offTrack}
+                            offTrack={offTrack.filter(Boolean).length > 6}
         />
         <SwitchRouteControl availableRoute={availableRouting}
                             currentState={vehicleState}
