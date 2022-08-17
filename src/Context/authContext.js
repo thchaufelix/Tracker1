@@ -19,7 +19,6 @@ const AccountContextProvider = (props) => {
   const secondList = [...Array(constants.scanInterval).keys()]
   // const [ motionData, setMotionData ] = useState('')
   const [bData, setBData] = useState({})
-  // const bData = useRef({})
   const [onCarList, setOnCarList] = useState([])
   const [versionData, setVersionData] = useState({})
   // const notification = new NotifService((token)=>onRegister(token),(iNotification)=>onNotification(iNotification))
@@ -53,7 +52,9 @@ const AccountContextProvider = (props) => {
 
   const handleDebugMsg = (msg) => {
     const data = JSON.parse(msg)
-    // setBData(data)
+    console.log("update once")
+
+    setBData(data)
     if ((new Date().getMinutes() + new Date().getHours() * 60) % constants.scanPeriod === 0 && secondList.includes(new Date().getSeconds())) {
       IBeaconPlaygroundModule.startScanning();
     }

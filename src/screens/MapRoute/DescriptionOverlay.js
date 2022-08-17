@@ -1,26 +1,34 @@
 import {Marker, Polyline} from "react-native-maps";
 import React, {useEffect, useState} from "react";
 import {StyleSheet, View} from "react-native";
-import {Text} from "@ui-kitten/components";
+import {Card, Modal, Text} from "@ui-kitten/components";
 import i18n from "i18n-js";
 import CustomButton from "../../component/CustomButton";
 
 
-const DescriptionOverlay = ({show, message}) => {
+const DescriptionOverlay = ({show, refreshCondition=[], message, callback=null}) => {
 
-  const doNothing = () => {
+  const [visible, setVisible] = useState(false)
 
+  useEffect(() => {
+    setTimeout(() => setVisible(show), 200)
+  }, [show, ...refreshCondition])
+
+  const onPressHandler = () => {
+    if (callback != null) {
+      callback()
+    }
+    setVisible(false)
   }
 
   return (
     <>
-      {show ?
+      {visible ?
         <View style={styles.container}>
-          <CustomButton disable={true}
-                        callback={doNothing}
+          <CustomButton callback={onPressHandler}
                         style={styles.bn}
           >
-            <Text style={{color: "#eee"}}>{message}</Text>
+            <Text style={{color: "black"}}>{message}</Text>
           </CustomButton>
         </View> : null}
     </>
@@ -33,7 +41,7 @@ export default DescriptionOverlay;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "95%",
+    width: "85%",
     backgroundColor: "transparent",
 
     position: "absolute",
@@ -45,9 +53,11 @@ const styles = StyleSheet.create({
   },
 
   bn: {
-    width: "80%",
-    borderColor: 'rgba(150,150,150, 0.8)',
-    backgroundColor: 'rgba(150,150,150, 0.6)',
+    padding: 14,
+    borderWidth: 4,
+    borderColor: 'rgba(234, 67, 53, 0.8)',
+    // backgroundColor: 'rgba(251, 188, 5, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
   }
 
 

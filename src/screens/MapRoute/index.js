@@ -99,6 +99,7 @@ export default function MapRoute({navigation}) {
     params: {project: deviceData.pj}
   }, {manual: true});
 
+  //
   const updateTaskData = async (url, method, signal: {}) => {
     try {
       await executeGetLatest({url: url, method: method, signal: signal}).then(response => {
@@ -173,23 +174,30 @@ export default function MapRoute({navigation}) {
     }
   }
 
+
+  const getCurrentLocation = () => {
+    return {
+      lat: GPSData[locationTick].lat + (Math.random() - 0.5) / 4000,
+      lng: GPSData[locationTick].lng + (Math.random() - 0.5) / 4000,
+    }
+  }
+
   // Update GPS Location Function
   useEffect(() => {
     if (locationTick >= 0 && locationTick < GPSData.length) {
-      const currentLocationFake = {
-        lat: GPSData[locationTick].lat + (Math.random() - 0.5) / 2250,
-        lng: GPSData[locationTick].lng + (Math.random() - 0.5) / 2250,
-      }
+      const currentLocationFake = getCurrentLocation()
 
-      // Get The Closest Route
+      // Get The Closest Route coordinate
       const closest = getClosestIndexLatLng(GPSData, currentLocationFake)
+      setCurrentLocation({...currentLocationFake, ...{closetCoord: closest.index, distance: closest.distance}})
 
+      // Push Record to Offtrack Queue
       setOffTrack(prevState => {
         prevState.shift()
         return [...prevState, closest.distance > 20]
       })
-      setCurrentLocation({...currentLocationFake, ...{closetCoord: closest.index, distance: closest.distance}})
 
+      // GPS Refresh Rate 0.1s delay
       setTimeout(() => {
         setLocationTick(prevState => prevState + 2 > GPSData.length ? GPSData.length - 1 : prevState + 2)
       }, 100);
@@ -197,8 +205,10 @@ export default function MapRoute({navigation}) {
   }, [locationTick])
 
 
-  // Loading Screen
+  // Get Data Loading Screen
   if (loading && routeData === null) return <LoadingView message={"Getting Data ..."} color={"white"}/>
+
+  // No Data Screen
   if (routeData === null) return (
     <LoadingView message={error ? error.message : i18n.t("noDataMessage")} color={"white"}>
       <CustomButton callback={() => updateTaskData(apiUri + plantRouteTaskAPI, "GET")}
@@ -234,8 +244,10 @@ export default function MapRoute({navigation}) {
         </MapView>
 
         <DescriptionOverlay show={vehicleState !== "start"}
+                            refreshCondition={[routeData.id]}
                             message={routeData.site_plant_route.description}
         />
+
         <InstructionOverlay instructions={routeData.site_plant_route.route[0].instructions}
                             currentLocation={currentLocation}
                             currentState={vehicleState}
@@ -251,6 +263,7 @@ export default function MapRoute({navigation}) {
                             callback={actionHandler}
         />
       </View>
+
 
     </View>
   )

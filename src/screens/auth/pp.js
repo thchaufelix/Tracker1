@@ -29,7 +29,7 @@ export function PPBox() {
 
     setTimeout(async () => {
       IBeaconPlaygroundModule.startForeground();
-      IBeaconPlaygroundModule.startScanning();
+      // IBeaconPlaygroundModule.startScanning();
     }, 2000);
 
   }

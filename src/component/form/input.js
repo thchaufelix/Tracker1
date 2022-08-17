@@ -1,9 +1,9 @@
-import React , { useContext, useState, useEffect, useRef } from 'react'
+import React, {useContext, useState, useEffect, useRef} from 'react'
 import {Input} from '@ui-kitten/components';
 import * as constants from '../../global/constants'
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-import { MaterialIcons } from '@expo/vector-icons';
+import {MaterialIcons} from '@expo/vector-icons';
 import {
   View,
   StyleSheet,
@@ -21,22 +21,22 @@ const colorSchema = {
 }
 
 
-export default function   InputComponent(props) {
+export default function InputComponent(props) {
   const [isFocused, setIsFocused] = useState(false)
   // const [isSelected, setIsSelected] = useState(false)
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
 
-  const [_animatedIsFocused]  = useState(new Animated.Value(0))
+  const [_animatedIsFocused] = useState(new Animated.Value(0))
 
   useEffect(() => {
-    
+
     Animated.timing(_animatedIsFocused, {
-      toValue: (isFocused || props.value !=='') ? 1 : 0,
+      toValue: (isFocused || props.value !== '') ? 1 : 0,
       duration: 125,
       useNativeDriver: false
-    }).start(); 
-    
+    }).start();
+
   }, [isFocused])
 
 
@@ -50,47 +50,43 @@ export default function   InputComponent(props) {
   // },[isSelected])
 
   const labelStyle = {
-      position: 'absolute',
-      fontFamily:'M-M',
-      zIndex: _animatedIsFocused.interpolate({
-        inputRange: [0, 1],
-        outputRange: [-1, 1],
-      }),
+    position: 'absolute',
+    fontFamily: 'M-M',
+    zIndex: _animatedIsFocused.interpolate({
+      inputRange: [0, 1],
+      outputRange: [-1, 1],
+    }),
 
-      backgroundColor: (props.disabled) ? null : props.bgColor ? props.bgColor : "#fff",
-      paddingHorizontal: _animatedIsFocused.interpolate({
-        inputRange: [0, 1],
-        outputRange: [5, 2],
-      }),
-      transform: [
-        {
-          translateX: 10
-        },
-        {
-          translateY:
-            _animatedIsFocused.interpolate({
-              inputRange: [0, 1],
-              outputRange: [18, -11],
-            })
-        },
-      ],
-      opacity: _animatedIsFocused.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-      }),
-      color: (isFocused) ? (props.labelColor?props.labelColor:'#FFF') : colorSchema.textBasic,
-    }
-  ;
+    backgroundColor: (props.disabled) ? null : props.bgColor ? props.bgColor : "#fff",
+    paddingHorizontal: _animatedIsFocused.interpolate({
+      inputRange: [0, 1],
+      outputRange: [5, 2],
+    }),
+    transform: [
+      {
+        translateX: 10
+      },
+      {
+        translateY:
+          _animatedIsFocused.interpolate({
+            inputRange: [0, 1],
+            outputRange: [18, -11],
+          })
+      },
+    ],
+    opacity: _animatedIsFocused.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 1],
+    }),
+    color: (isFocused) ? (props.labelColor ? props.labelColor : '#FFF') : colorSchema.textBasic,
+  };
 
   const styles = StyleSheet.create({
     inputBox: {
       height: (props.blockSize) ? props.blockSize : null,
-      fontFamily:'M-M',
-      color:props.textColor?props.textColor:'#FFF',
-     
-
+      fontFamily: 'M-M',
+      color: props.textColor ? props.textColor : '#FFF',
     },
-    
   })
 
   // const renderItem = ({ item, index}) => {
@@ -99,14 +95,14 @@ export default function   InputComponent(props) {
   //       if(!props.data.some(subItem=>subItem.id === item.id)){
   //         props.setData([...props.data,item])
   //       }
-        
+
   //       // props.setFilterData([])
   //       // props.setSearch('')
   //       // var array = [...fileList]
   //       // setSelectedImage(index)
   //       // setIsVisible(true)
   //   }    
-    
+
   //   return(
   //       <TouchableOpacity key={item.id+'_'+item.name_eng} style={{marginTop:'3%',flexDirection:'row'}} onPress={()=>pressHandler(index)}>
   //         <View style={{flex:0.2}}>
@@ -120,21 +116,41 @@ export default function   InputComponent(props) {
 
   return (
     <>
-      {props.disabled && props.value  ? <Text style={[{color: colorSchema.textBasic,position:'absolute',left:13,top:24,fontFamily:'M-M',backgroundColor:(props.disabled)?(props.bgColor ? props.bgColor : "#fff"):null,zIndex:1}]}>{props.header}</Text> : null}
+      {props.disabled && props.value ? <Text style={[{
+        color: colorSchema.textBasic,
+        position: 'absolute',
+        left: 13,
+        top: 24,
+        fontFamily: 'M-M',
+        backgroundColor: (props.disabled) ? (props.bgColor ? props.bgColor : "#fff") : null,
+        zIndex: 1
+      }]}>{props.header}</Text> : null}
       <View style={{...props.style}}>
-        <Input
-          {...props}
-          placeholder={isFocused?' ':props.header}
-          onFocus={handleFocus} 
-          style={{backgroundColor:props.bgColor, borderColor: (isFocused) ? props.borderColor: props.borderNormal}}
-          onBlur={handleBlur}
-          accessoryRight={props.rightAccessory?(isFocused||props.value!==''?props.rightAccessory:null):null}
-          textStyle={styles.inputBox}
-          editable={!(props.disabled)}
+        <Input {...props}
+               placeholder={isFocused ? ' ' : props.header}
+               onFocus={handleFocus}
+               style={{
+                 backgroundColor: props.bgColor,
+                 borderColor: (isFocused) ? props.borderColor : props.borderNormal
+               }}
+               onBlur={handleBlur}
+               accessoryRight={props.rightAccessory ? (isFocused || props.value !== '' ? props.rightAccessory : null) : null}
+               textStyle={styles.inputBox}
+               editable={!(props.disabled)}
         />
-        {props.filterData && props.filterData.length !== 0?
-          <FlatList style={{position:'absolute',width:'100%',elevation:5,paddingHorizontal:'3%',zIndex:100,backgroundColor:'white',maxHeight:isFocused?130:300,top:50,borderRadius:5}} data={props.filterData}  renderItem={props.renderItem} keyExtractor={item => item.id} />
-         :null}
+        {props.filterData && props.filterData.length !== 0 ?
+          <FlatList style={{
+            position: 'absolute',
+            width: '100%',
+            elevation: 5,
+            paddingHorizontal: '3%',
+            zIndex: 100,
+            backgroundColor: 'white',
+            maxHeight: isFocused ? 130 : 300,
+            top: 50,
+            borderRadius: 5
+          }} data={props.filterData} renderItem={props.renderItem} keyExtractor={item => item.id}/>
+          : null}
         {props.disabled && props.value ? null :
           <Animated.Text style={labelStyle}>
             {props.header}

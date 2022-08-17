@@ -1,5 +1,5 @@
 import React, {Fragment, useEffect, useContext, useState} from 'react';
-import {Modal, View, StyleSheet, Text, SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
+import {Modal, View, StyleSheet, Text, SafeAreaView, TouchableOpacity, FlatList, NativeModules} from 'react-native';
 import {Drawer, Avatar, DrawerItem} from '@ui-kitten/components';
 import {MaterialIcons} from '@expo/vector-icons';
 import i18n from 'i18n-js'
@@ -9,6 +9,8 @@ import * as Localization from 'expo-localization';
 import * as SecureStore from 'expo-secure-store'
 import {AccountContext} from '../Context/authContext';
 import * as constants from '../global/constants'
+
+const {IBeaconPlaygroundModule} = NativeModules;
 import axios from 'axios';
 import {FontAwesome5Pack} from "../global/iconPack";
 // import { AccountContext } from '../Context/authContext';
@@ -20,7 +22,6 @@ const LogOutIcon = (style) => (
 const TIcon = (style) => (
   <Icon {...style} style={{color: 'white', height: 18}} name='translate' pack='material'/>
 );
-
 
 
 function DrawerHeader(props) {
@@ -59,19 +60,16 @@ function DrawerHeader(props) {
 }
 
 
-const createDrawerItemForRoute = (props, routes, index, onCarList, bgColor) => {
-  const {options} = props.descriptors[routes.key];
+const createDrawerItemForRoute = (props, route, index, onCarList, bgColor) => {
+  const {options} = props.descriptors[route.key];
   return (
     <DrawerItem style={{backgroundColor: bgColor[index], height: 50}}
                 key={index}
                 disabled={index === 0 & onCarList.length === 0 ? true : false}
                 title={() => <Text style={{
-                  fontSize: 14,
-                  fontFamily: 'M-M',
+                  ...styles.drawerItemText,
                   color: index === 0 & onCarList.length === 0 ? 'grey' : '#FFF',
-                  position: 'absolute',
-                  left: '25%'
-                }}>{i18n.t(routes.name)}</Text>}
+                }}>{i18n.t(route.name)}</Text>}
                 accessoryLeft={options.drawerIcon}
     />
   );
@@ -83,16 +81,27 @@ export function HomeDrawer(props) {
   const [modalVisible, setModalVisible] = useState(false)
   const [projectList, setProjectList] = useState([])
   // console.log(props.state.routes)
+
   useEffect(() => {
     const newBgColor = new Array(6).fill('#2E333A')
     newBgColor[props.selected] = '#73B2B8'
     setBgColor(newBgColor)
   }, [])
+
   const routes = props.state.routes
   // console.log(routes[1].length)
   const onItemSelect = (index) => {
 
     if (!(index.section)) {
+
+      if ([3].includes(index.row)) {
+        console.log("enable scanning")
+        IBeaconPlaygroundModule.startScanning();
+      } else {
+        console.log("disable scanning")
+        IBeaconPlaygroundModule.stopScanning();
+      }
+
       console.log(index.row, onCarList)
       if (index.row === 6) {
         signOut()
@@ -208,42 +217,29 @@ export function HomeDrawer(props) {
         <Drawer header={headerProp => <DrawerHeader {...headerProp} navigation={props.navigation}/>}
                 appearance={'noDivider'}
                 style={{backgroundColor: '#2E333A'}}
-                onSelect={onItemSelect}>
-          <View style={{justifyContent: "space-between"}}>
+                onSelect={onItemSelect}
+        >
+          {routes.map((route, index) => createDrawerItemForRoute(props, route, index, onCarList, bgColor))}
 
-            {routes.map((routes, index) => createDrawerItemForRoute(props, routes, index, onCarList, bgColor))}
-
-            <DrawerItem
-              style={{backgroundColor: bgColor[5], height: 50}}
-              key={'translate'}
-              title={() => <Text style={{
-                fontSize: 14,
-                fontFamily: 'M-M',
-                color: '#FFF',
-                position: 'absolute',
-                left: '25%'
-              }}>{Localization.locale === 'en' ? '繁中' : 'English'}</Text>}
-              accessoryLeft={TIcon}
-            />
-            {/* <DrawerItem
+          <DrawerItem
+            style={{backgroundColor: bgColor[5], height: 50}}
+            key={'translate'}
+            title={() => <Text
+              style={styles.drawerItemText}>{Localization.locale === 'en' ? '繁中' : 'English'}</Text>}
+            accessoryLeft={TIcon}
+          />
+          {/* <DrawerItem
               style={{backgroundColor:bgColor[5],height:50}}
               key={'changeprj'}
               title={()=><Text style={{fontSize:14,fontFamily:'M-M',color:'#FFF',position:'absolute',left:'25%'}}>{i18n.t('ChangePrj')}</Text>}
               accessoryLeft={PIcon}
             /> */}
-            <DrawerItem
-              style={{backgroundColor: bgColor[6], height: 50}}
-              key={'logout'}
-              title={() => <Text style={{
-                fontSize: 14,
-                fontFamily: 'M-M',
-                color: '#FFF',
-                position: 'absolute',
-                left: '25%'
-              }}>{i18n.t('Logout')}</Text>}
-              accessoryLeft={LogOutIcon}
-            />
-          </View>
+          <DrawerItem
+            style={{backgroundColor: bgColor[6], height: 50}}
+            key={'logout'}
+            title={() => <Text style={styles.drawerItemText}>{i18n.t('Logout')}</Text>}
+            accessoryLeft={LogOutIcon}
+          />
         </Drawer>
         {/* <ProjBox /> */}
       </SafeAreaView>
@@ -329,6 +325,14 @@ const styles = StyleSheet.create({
     paddingVertical: '5%',
     borderRadius: 5,
     borderWidth: 0,
+  },
+
+  drawerItemText: {
+    fontSize: 14,
+    fontFamily: 'M-M',
+    color: '#FFF',
+    position: 'absolute',
+    left: '25%'
   },
 
 

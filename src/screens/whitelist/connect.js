@@ -202,9 +202,6 @@ export default function ConnectScreen({navigation,route}){
       
     },[config])
 
-
-   
-    
     useEffect(() => {
         setPaired([])
         // getNewConfig2()

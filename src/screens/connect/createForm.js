@@ -880,7 +880,6 @@ const styles = StyleSheet.create({
         aspectRatio:1
     },
     deleteBtn:{
-        shadowRadius:1,
         shadowOffset:{width:0,height:3},
         shadowOpacity:0.5,
         shadowRadius:3,

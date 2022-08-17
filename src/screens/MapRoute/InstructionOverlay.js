@@ -39,12 +39,6 @@ const InstructionOverlay = ({instructions, currentLocation, currentState, GPSDat
       const closestInstruction = instructions[closestInstructionIndex]
 
       if (nextInstruction && GPSData[nextInstruction.index]) {
-        // const current_latLng = [currentLocation.lat, currentLocation.lng]
-        // const next_latLng = [GPSData[nextInstruction.index].lat, GPSData[nextInstruction.index].lng]
-        // const closest_latLng = [GPSData[closestInstruction.index].lat, GPSData[closestInstruction.index].lng]
-        //
-        // const distance = parseInt(haversine_distance(current_latLng, next_latLng) * 1000)
-        // const closestDistance = parseInt(haversine_distance(current_latLng, closest_latLng) * 1000)
 
         const {distance, closestDistance} = getDistance(nextInstruction, closestInstruction)
 
