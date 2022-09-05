@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resources>
+  <string name="app_name">Tracker</string>
+  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
+  <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+  <string name="camera_and_location_rationale">234</string>
+  <string name="rationale_ask_ok">Allow</string>
+  <string name="rationale_ask_cancel">Deny</string>
+    <string name="default_notification_channel_id">default-channel-id</string>
+</resources>
