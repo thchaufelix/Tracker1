@@ -46,7 +46,7 @@
         <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id"
                    android:value="@string/default_notification_channel_id"/>
         <meta-data android:name="com.google.android.geo.API_KEY"
-                   android:value="AIzaSyDpA4swk2Lj0sWSMhoCcj1j4gmsNGMm_6U"/>
+                   android:value=""/>
 
 
         <service android:name=".backend.workers.BeaconScanner"
