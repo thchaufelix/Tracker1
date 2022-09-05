@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import AccountContextProvider from './src/Context/authContext'
+import AccountContextProvider2 from './src/Context/authContext2'
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components'
 import AppLoading from 'expo-app-loading';
 import {NavigationContainer} from '@react-navigation/native';
@@ -78,7 +79,7 @@ export default function App() {
 
   return (
     <NotiContextProvider>
-      <AccountContextProvider>
+      <AccountContextProvider2>
         <NavigationContainer>
           <ApplicationProvider {...eva} theme={{...eva.light, ...theme}}>
 
@@ -87,7 +88,7 @@ export default function App() {
 
           </ApplicationProvider>
         </NavigationContainer>
-      </AccountContextProvider>
+      </AccountContextProvider2>
     </NotiContextProvider>
   )
 

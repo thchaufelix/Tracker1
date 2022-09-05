@@ -3,6 +3,7 @@ import { View,Text, StyleSheet, Modal,NativeModules,TouchableOpacity } from 'rea
 import * as Device from 'expo-device';
 import i18n from 'i18n-js';
 import { AccountContext } from '../../Context/authContext';
+import { AccountContext2 } from '../../Context/authContext2';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios'
 import * as constants from '../../global/constants'
@@ -30,7 +31,7 @@ const NavigationDrawerStructure = (props) => {
 
 export default function DetailScreen({navigation}){
     
-   const { deviceData,reloadStaffList, token,setDeviceData } = useContext(AccountContext)
+   const { deviceData,reloadStaffList, token,setDeviceData } = useContext(AccountContext2)
    const { config } = useContext(NotiContext)
    const authToken = 'Token ' + token
    useEffect(()=>{

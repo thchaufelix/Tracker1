@@ -8,6 +8,7 @@ import i18n from 'i18n-js';
 import LinkScreen from '../screens/connect/home';
 import ImageScreen from '../component/imagePicker/imagePicker';
 import { AccountContext } from '../Context/authContext';
+import { AccountContext2 } from '../Context/authContext2';
 import LinkcCreateScreen from '../screens/connect/createForm';
 
 const Stack = createStackNavigator();

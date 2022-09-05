@@ -16,7 +16,7 @@ import {
 import * as constants from '../../global/constants'
 import i18n from 'i18n-js'
 import axios from 'axios'
-import {AccountContext} from '../../Context/authContext'
+import {AccountContext2} from '../../Context/authContext2'
 // import NetInfo from "@react-native-community/netinfo";
 import {AppRoute} from '../../navigator/appRoutes'
 import {Ionicons} from '@expo/vector-icons';
@@ -74,8 +74,8 @@ export default function SignInScreen({navigation}) {
     versionData,
     setVersionData,
     setDeviceData,
-    token
-  } = useContext(AccountContext)
+    token,
+  } = useContext(AccountContext2)
   const {loadConfig, config, setLoadConFig} = useContext(NotiContext)
   const [bgRadiusValue, setBGRadiusValue] = useState(1)
   const [bgColor, setBGColor] = useState('#2E333A')
@@ -351,6 +351,7 @@ export default function SignInScreen({navigation}) {
       duration: 1000,
       useNativeDriver: false
     })
+
     checkAccount().then(() => {
       btnAction.start(result => {
         setTimeout(() => {
@@ -571,11 +572,12 @@ export default function SignInScreen({navigation}) {
           width: '100%',
           bottom: 0,
           zIndex: -1,
-          justifyContent: 'center'
+          justifyContent: 'space-between'
         }, {height: botHeight}]}>
           <Animated.Image source={require('../../../assets/icon/logo.png')}
                           style={[styles.companyLogo, imageOpacityStyle]}/>
           <Animated.Text style={[styles.copyright, {color: wordColor}]}>Cerebro Strategy Limited</Animated.Text>
+          <Text style={[styles.copyright, {color: wordColor}, {marginBottom: 10}]}>IMEI: {deviceData.imei}</Text>
         </Animated.View>
 
         <Animated.View
@@ -585,6 +587,7 @@ export default function SignInScreen({navigation}) {
         </Animated.View>
 
       </View>
+
       {/* <ConformBox />      */}
       <PPBox/>
     </View>

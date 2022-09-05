@@ -18,7 +18,7 @@ import i18n from 'i18n-js';
 import axios from 'axios'
 import * as constants from '../../global/constants'
 import InputComponent from '../../component/form/input'
-import {AccountContext} from '../../Context/authContext';
+import {AccountContext2} from '../../Context/authContext2';
 import ImageView from "react-native-image-viewing";
 import {AppRoute} from '../../navigator/appRoutes';
 import {useKeepAwake} from "expo-keep-awake";
@@ -41,7 +41,7 @@ export default function LinkScreen({navigation, route}) {
     setDeviceData,
     reloadStaffList,
     getDeviceData
-  } = useContext(AccountContext)
+  } = useContext(AccountContext2)
   const haveData = deviceData.plant_id !== ''
   const authToken = 'Token ' + token
   const [fileList, setFileList] = useState(deviceData.image)
@@ -899,13 +899,12 @@ export default function LinkScreen({navigation, route}) {
                     onRequestClose={() => setIsVisible(false)}
                 />                  
                :null} */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
+      <Modal animationType="slide"
+             transparent={true}
+             visible={modalVisible}
+             onRequestClose={() => {
+               setModalVisible(!modalVisible);
+             }}>
         <View style={styles.modal}>
           <View style={{flex: 1}}>
             <TouchableOpacity style={{flex: 0.75}} activeOpacity={1} onPress={() => setModalVisible(false)}>

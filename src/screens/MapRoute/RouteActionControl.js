@@ -5,7 +5,7 @@ import i18n from "i18n-js";
 import CustomButton from "../../component/CustomButton";
 
 
-const RouteActionControl = ({currentState, callback}) => {
+const RouteActionControl = ({currentState, callback, disable}) => {
 
   const onPressHandler = (action) => {
     callback(action)
@@ -16,6 +16,7 @@ const RouteActionControl = ({currentState, callback}) => {
 
       {currentState !== "start" ?
         <CustomButton callback={() => onPressHandler("start")}
+                      disable={disable}
                       style={[styles.startBnColor, styles.BnStyle]}
         >
           <Text style={{color: "#eee"}}>{i18n.t("actionStart")}</Text>
@@ -23,6 +24,7 @@ const RouteActionControl = ({currentState, callback}) => {
 
       {currentState === "start" ?
         <CustomButton callback={() => onPressHandler("stop")}
+                      disable={disable}
                       style={[styles.endBnColor, styles.BnStyle]}
         >
           <Text style={{color: "#eee"}}>{i18n.t("actionEnd")}</Text>

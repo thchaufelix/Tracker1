@@ -11,6 +11,7 @@ import {WLNavigator} from './wlNav';
 import {LinkNavigator} from './linkNav';
 import {DetailNavigator} from './detailNav';
 import {AccountContext} from '../Context/authContext';
+import {AccountContext2} from '../Context/authContext2';
 import {MapNavigator} from "./mapNav";
 
 
@@ -38,7 +39,7 @@ const MapIcon = (style) => (
 const Drawer = createDrawerNavigator();
 
 export const HomeNavigator = () => {
-  const {deviceData} = useContext(AccountContext)
+  const {deviceData} = useContext(AccountContext2)
   return (
     <Drawer.Navigator screenOptions={{headerShown: false}}
                       drawerContent={props => <HomeDrawer {...props} selected={deviceData.plant_id !== '' ? 3 : 2}/>}

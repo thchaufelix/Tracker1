@@ -8,6 +8,7 @@ import {SimpleLineIcons} from '@expo/vector-icons';
 import * as Localization from 'expo-localization';
 import * as SecureStore from 'expo-secure-store'
 import {AccountContext} from '../Context/authContext';
+import {AccountContext2} from '../Context/authContext2';
 import * as constants from '../global/constants'
 
 const {IBeaconPlaygroundModule} = NativeModules;
@@ -76,7 +77,7 @@ const createDrawerItemForRoute = (props, route, index, onCarList, bgColor) => {
 };
 
 export function HomeDrawer(props) {
-  const {onCarList, bgColor, setBgColor, deviceData, token} = useContext(AccountContext)
+  const {onCarList, bgColor, setBgColor, deviceData, token} = useContext(AccountContext2)
   const authToken = 'Token ' + token
   const [modalVisible, setModalVisible] = useState(false)
   const [projectList, setProjectList] = useState([])

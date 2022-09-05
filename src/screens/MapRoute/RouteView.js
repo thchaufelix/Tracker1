@@ -16,10 +16,10 @@ const RouteView = ({coordinates, startWayPoint, endWayPoint}) => {
 
   return (
     <>
-      <Marker key={"wayPointStart"} coordinate={startWayPoint} >
+      <Marker key={"wayPointStart"} coordinate={startWayPoint} pinColor={'rgba(33, 215, 39, 1)'}>
       </Marker>
 
-      <Marker key={"wayPointEnd"} coordinate={endWayPoint} pinColor={'rgba(74,128,245, 1)'}>
+      <Marker key={"wayPointEnd"} coordinate={endWayPoint}>
       </Marker>
 
       <Polyline coordinates={route}

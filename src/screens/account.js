@@ -9,7 +9,7 @@ import { Button, Card, Modal } from '@ui-kitten/components';
 import * as SecureStore from 'expo-secure-store'
 import * as Localization from 'expo-localization';
 import * as constants from '../global/constants'
-import { AccountContext } from '../Context/authContext';
+import { AccountContext2 } from '../Context/authContext2';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -19,7 +19,7 @@ const BackIcon = (style)  => (
 
 export default function Account({navigation}){
   const doman = constants.domain
-  const { userData, fa2Login, setFA2Login } = useContext(AccountContext)
+  const { userData, fa2Login, setFA2Login } = useContext(AccountContext2)
 
   const [visible, setVisible] = useState(false);
   // const [projectView, setProjectView] = useState(false);

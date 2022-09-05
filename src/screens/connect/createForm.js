@@ -9,7 +9,7 @@ import InputComponent from '../../component/form/input'
 import { Formik } from 'formik'
 import * as ImagePicker from 'expo-image-picker';
 import mime from "mime";
-import { AccountContext } from '../../Context/authContext';
+import { AccountContext2 } from '../../Context/authContext2';
 import ImageView from "react-native-image-viewing";
 import { AppRoute } from '../../navigator/appRoutes';
 import { CommonActions, StackActions, NavigationActions } from "@react-navigation/native";
@@ -23,7 +23,7 @@ const {IBeaconPlaygroundModule} = NativeModules;
 export default function LinkcCreateScreen({navigation,route}){
     useKeepAwake()
     const animationDuration = 200
-    const { token, deviceData, handleData,setBgColor, setDeviceData } = useContext(AccountContext)
+    const { token, deviceData, handleData,setBgColor, setDeviceData } = useContext(AccountContext2)
     const authToken = 'Token '+token
     const [ submit, setSubmit ] = useState(false)
     const [ fileList, setFileList ] = useState([])

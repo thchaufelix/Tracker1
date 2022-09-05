@@ -1,5 +1,4 @@
 import React, {Component, createContext} from "react";
-import AccountContextProvider from "./authContext";
 import * as constants from "../global/constants";
 import * as Device from "expo-device";
 import {NativeEventEmitter, NativeModules} from "react-native";
@@ -9,16 +8,16 @@ import axios from "axios";
 const {IBeaconPlaygroundModule} = NativeModules;
 const bleManagerEmitter = new NativeEventEmitter(NativeModules.IBeaconModule);
 
-export const ConfigContext = createContext(undefined, undefined)
+export const AccountContext2 = createContext(undefined, undefined)
 
 const storeData = async (key, value) => {
-    try {
-      await AsyncStorage.setItem(key, JSON.stringify(value))
-    } catch (e) {
-      // saving error
-      console.log(e)
-    }
+  try {
+    await AsyncStorage.setItem(key, JSON.stringify(value))
+  } catch (e) {
+    // saving error
+    console.log(e)
   }
+}
 
 class AccountContextProvider2 extends Component {
 
@@ -30,6 +29,7 @@ class AccountContextProvider2 extends Component {
     bData: {},
     onCarList: [],
     versionData: {},
+    bgColor: new Array(6).fill('#2E333A'),
 
     deviceData: {
       imei: '',
@@ -80,7 +80,7 @@ class AccountContextProvider2 extends Component {
 
   handleDebugMsg = (msg) => {
     const data = JSON.parse(msg)
-    console.log("update once")
+    console.log(msg)
 
     this.setState({bData: data})
     if ((new Date().getMinutes() + new Date().getHours() * 60) % constants.scanPeriod === 0 && this.state.secondList.includes(new Date().getSeconds())) {
@@ -94,7 +94,7 @@ class AccountContextProvider2 extends Component {
     storeData('@device_data', input)
   }
 
-  checkAccount =  () => {
+  checkAccount = async () => {
     this.getToken().then(async (jsonValue) => {
       this.setState({token: jsonValue})
       console.log(jsonValue[0])
@@ -140,7 +140,6 @@ class AccountContextProvider2 extends Component {
           storeData('@device_data', newDeviceData)
         }
 
-
       })
     })
   }
@@ -174,6 +173,7 @@ class AccountContextProvider2 extends Component {
 
   }
 
+  setBgColor = (color) => this.setState({bgColor: color})
 
   componentDidMount() {
     this.onScannerDataListener = bleManagerEmitter.addListener('scanner_data', this.handleDebugMsg);
@@ -185,18 +185,22 @@ class AccountContextProvider2 extends Component {
     IBeaconPlaygroundModule.stopScanning();
   }
 
+  setDeviceData = (data) => this.setState({deviceData: data})
+
   render() {
     return (
-      <ConfigContext.Provider value={{
+      <AccountContext2.Provider value={{
         ...this.state,
         getDeviceData: this.getDeviceData,
         checkAccount: this.checkAccount,
         handleData: this.handleData,
         reloadStaffList: this.reloadStaffList,
-        storeData: storeData
+        storeData: storeData,
+        setBgColor: this.setBgColor,
+        setDeviceData: this.setDeviceData,
       }}>
         {this.props.children}
-      </ConfigContext.Provider>
+      </AccountContext2.Provider>
     )
   }
 }

@@ -9,7 +9,7 @@ import InputComponent from '../../component/form/input'
 import { Formik } from 'formik'
 import axios from 'axios'
 import { FontAwesome5 } from '@expo/vector-icons';
-import { AccountContext } from '../../Context/authContext';
+import { AccountContext2 } from '../../Context/authContext2';
 import {useKeepAwake} from "expo-keep-awake";
 import NetInfo from "@react-native-community/netinfo";
 import { AppRoute } from '../../navigator/appRoutes';
@@ -93,7 +93,7 @@ export default function ConnectScreen({navigation,route}){
 
     // const isFocused = useIsFocused()
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const { deviceData, token, staffList, reloadStaffList, onCarList, bData,setOnCarList,setDeviceData } = useContext(AccountContext)
+    const { deviceData, token, staffList, reloadStaffList, onCarList, bData,setOnCarList,setDeviceData } = useContext(AccountContext2)
     const { config } = useContext(NotiContext)
     const authToken = 'Token '+token
     const [animatedHeight, setAnimatedHeight] = useState(new Animated.Value(0))

@@ -4,7 +4,7 @@ import { MaterialIcons,Foundation,FontAwesome } from '@expo/vector-icons';
 import i18n from 'i18n-js';
 import {useKeepAwake} from "expo-keep-awake";
 import { NativeModules,NativeEventEmitter } from 'react-native';
-import { AccountContext } from '../../Context/authContext';
+import { AccountContext2 } from '../../Context/authContext2';
 import axios from 'axios'
 import * as constants from '../../global/constants'
 import { Audio } from 'expo-av';
@@ -37,7 +37,7 @@ export default function RTCScreen({navigation}){
     const animatedOpacity2= useRef(new Animated.Value(0)).current
     const animatedOpacity3= useRef(new Animated.Value(0)).current
     const animatedOpacity1= useRef(new Animated.Value(0)).current
-    const { token, deviceData,login,bData,staffList, onCarList, setOnCarList,setDeviceData ,reloadStaffList,handleData} = useContext(AccountContext)
+    const { token, deviceData,login,bData,staffList, onCarList, setOnCarList,setDeviceData ,reloadStaffList,handleData} = useContext(AccountContext2)
     const authToken = 'Token ' + token
     const [ selectedData, setSelectedData ] = useState([...onCarList])
     // const [ warning, setWarning ] = useState(false)

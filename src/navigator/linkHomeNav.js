@@ -11,6 +11,7 @@ import { WLNavigator } from './wlNav';
 import { LinkNavigator } from './linkNav';
 import { DetailNavigator } from './detailNav';
 import { AccountContext } from '../Context/authContext';
+import { AccountContext2 } from '../Context/authContext2';
 
 const Drawer = createDrawerNavigator();
 

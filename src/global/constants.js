@@ -9,13 +9,13 @@ export const windowHeight = Dimensions.get('window').height;
 export const pwLength = 6
 export const widthRatio = windowWidth / width
 export const HeightRatio = windowHeight / height
-export const systemVersion = "2.2.4"
+export const systemVersion = "2.2.6"
 export const scanPeriod = 20
 export const scanInterval = 5
 
 
-// export const domain = 'https://connect.cerebrohk.com/'
-export const domain = 'https://connect-dev.cerebrohk.com/'
+export const domain = 'https://connect.cerebrohk.com/'
+// export const domain = 'https://connect-dev.cerebrohk.com/'
 export const apiUri = domain + 'api-device-config/'
 export const deviceApi = apiUri + 'device'
 export const plantApi = apiUri + 'plant'

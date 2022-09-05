@@ -4,7 +4,15 @@ import {Text} from "@ui-kitten/components";
 import i18n from "i18n-js";
 import {getClosestArray, haversine_distance} from "./HelperFunction";
 
-const InstructionOverlay = ({instructions, currentLocation, currentState, GPSData, onReachHandler, offTrack}) => {
+const InstructionOverlay = ({
+                              instructions,
+                              currentLocation,
+                              currentState,
+                              GPSData,
+                              onReachHandler,
+                              offTrackWarning,
+                              offTrack
+                            }) => {
 
   const [nextCheckPoint, setNextCheckPoint] = useState(0)
   const [distanceToCheckPt, setDistanceToCheckPt] = useState(0)
@@ -60,6 +68,7 @@ const InstructionOverlay = ({instructions, currentLocation, currentState, GPSDat
     <View style={styles.container}>
       <View style={[
         styles.cardContainer,
+        ...(offTrackWarning ? [styles.offTrackWarning] : []),
         ...(offTrack ? [styles.offTrack] : []),
       ]}>
         <Text
@@ -106,9 +115,13 @@ const styles = StyleSheet.create({
   textColor: {
     color: "#eee"
   },
-  offTrack: {
+  offTrackWarning: {
     borderColor: 'rgba(251, 188, 5, 1)',
     backgroundColor: 'rgba(251, 188, 5, 0.8)',
+  },
+  offTrack: {
+    borderColor: 'rgba(234, 67, 53, 1)',
+    backgroundColor: 'rgba(234, 67, 53, 0.8)',
   }
 
 });
